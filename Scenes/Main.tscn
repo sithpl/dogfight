@@ -1,0 +1,66 @@
+[gd_scene load_steps=14 format=3 uid="uid://dv6t735xqxort"]
+
+[ext_resource type="Script" uid="uid://n4mnikfsc3v4" path="res://Scripts/Main.gd" id="1_idj7w"]
+[ext_resource type="Script" uid="uid://b3ymb3vdvhbdu" path="res://Scripts/Player.gd" id="1_r150o"]
+[ext_resource type="PackedScene" uid="uid://b6nocjktlr8bb" path="res://Scenes/Obstacles.tscn" id="3_kln2b"]
+[ext_resource type="PackedScene" uid="uid://08dtwbg68maf" path="res://Scenes/ReticleUI.tscn" id="3_pbw6q"]
+[ext_resource type="Texture2D" uid="uid://yqs20txhmh4w" path="res://Assets/darkgrass.png" id="4_rgh2o"]
+[ext_resource type="PackedScene" uid="uid://b33d2ju4ric2q" path="res://Scenes/Laser.tscn" id="4_v1gob"]
+[ext_resource type="PackedScene" uid="uid://dol1nc3s525hv" path="res://Scenes/Arwing.tscn" id="5_jw32o"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pbw6q"]
+uv1_scale = Vector3(0, 0, 0)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_kln2b"]
+material = SubResource("StandardMaterial3D_pbw6q")
+size = Vector2(200, 300)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rgh2o"]
+albedo_texture = ExtResource("4_rgh2o")
+uv1_scale = Vector3(20, 20, 20)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v1gob"]
+albedo_color = Color(0.5019608, 0.8156863, 1, 1)
+uv1_scale = Vector3(20, 20, 20)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_rgh2o"]
+material = SubResource("StandardMaterial3D_v1gob")
+size = Vector2(200, 20)
+
+[sub_resource type="Environment" id="Environment_rgh2o"]
+ambient_light_energy = 0.6
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_idj7w")
+
+[node name="ReticleUI" parent="." instance=ExtResource("3_pbw6q")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -10)
+current = true
+
+[node name="Player" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -5)
+script = ExtResource("1_r150o")
+laser_scene = ExtResource("4_v1gob")
+
+[node name="PlayerMesh" parent="Player" instance=ExtResource("5_jw32o")]
+
+[node name="Obstacles" parent="." instance=ExtResource("3_kln2b")]
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
+mesh = SubResource("PlaneMesh_kln2b")
+surface_material_override/0 = SubResource("StandardMaterial3D_rgh2o")
+
+[node name="Horizon" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 120)
+mesh = SubResource("PlaneMesh_rgh2o")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8660254, -0.43301272, 0.24999999, 0, 0.49999997, 0.86602545, -0.5, -0.75, 0.43301266, 0, 0, 0)
+light_energy = 1.6
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_rgh2o")
