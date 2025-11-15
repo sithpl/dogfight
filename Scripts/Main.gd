@@ -11,9 +11,9 @@ class_name Main extends Node3D
 @export var brake_fov           : float = 75.0    # Camera FOV when braking (tunnel vision feel)
 @export var fov_lerp_speed      : float = 6.0     # How quickly the camera FOV transitions
 
+@onready var player    : CharacterBody3D   = $Gameplay/Player       # The Player node (should have Player.gd)
+@onready var camera    : Camera3D          = $Gameplay/Bounds/PlayerCam    # Main camera (controls view & FOV)
 @onready var obstacles : Node3D            = $Obstacles    # The Node to hold all obstacles
-@onready var player    : Node3D            = $Player       # The Player node (should have Player.gd)
-@onready var camera    : Camera3D          = $Camera3D     # Main camera (controls view & FOV)
 @onready var ground    : MeshInstance3D    = $Ground       # The "floor" mesh
 @onready var horizon   : MeshInstance3D    = $Horizon      # The distant sky mesh, for parallax etc
 
@@ -25,9 +25,7 @@ var spawn_timer      : float = 0.0        # Time left until next obstacle spawn
 var ground_offset    : float = 0.0        # (Not currently used, could be for tiling ground)
 
 func _ready():
-	# When the scene starts, connect the Reticle UI to the Player and Camera, so aiming works
-	$ReticleUI.player = $Player
-	$ReticleUI.camera = $Camera3D
+	pass
 
 func _process(delta):
 	# delta = time since last frame (in seconds)
