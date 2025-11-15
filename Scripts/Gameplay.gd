@@ -1,12 +1,12 @@
 # Gameplay.gd
 class_name Gameplay extends Node3D
 
-@export var move_speed : float = 15.0
-@export var area_bounds_x : float = 8.0
-@export var area_bounds_y : float = 4.5
-@export var plane_z : float = 0.0
-@export var reticle1_offset_z : float = 10.0
-@export var reticle2_offset_z : float = 15.0
+@export var move_speed        : float = 10.0   # Movement speed through scene along Z axis
+@export var area_bounds_x     : float = 12.0   # Total allowed X axis movement from 0,0,0
+@export var area_bounds_y     : float = 4.5    # Total allowed Y axis movement from 0,0,0
+@export var plane_z           : float = 0.0    # PlayerMesh tracking for input
+@export var reticle1_offset_z : float = -5.0   # Z offset for Reticle1
+@export var reticle2_offset_z : float = -10.0  # Z offset for Reticle2
 
 @onready var center = $Center
 @onready var player = $Player/PlayerMesh
@@ -14,7 +14,8 @@ class_name Gameplay extends Node3D
 @onready var reticle2 = $Player/Reticle2
 
 func _ready():
-	global_transform.origin = Vector3(0, 0, 0) # Sphere at world origin
+	#global_transform.origin = Vector3(0, 0, 0) # Center at world origin - OLD
+	pass
 
 func _process(delta):
 	var input_vector = Vector3.ZERO
