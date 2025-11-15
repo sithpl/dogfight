@@ -1,20 +1,27 @@
-extends Camera3D
+# PlayerCam.gd
+class_name PlayerCam extends Camera3D
 
-# Size of deadzone (soft area)
-var deadzone_size = Vector2(7, 3.5)
+@export var deadzone_size: Vector2 = Vector2(7, 3.5)
+@export var follow_speed: float = 6.0 # higher = faster
 
 @onready var player = get_node("../../Player")
 
-func _process(_delta):
+func _process(delta):
 	var player_pos = player.global_transform.origin
 	var cam_pos = global_transform.origin
-	
+
+	# Get offset from camera to player
 	var offset = player_pos - cam_pos
-	
-	# Only move camera if outside deadzone
+
+	# Deadzone logic: Camera only cares if the player leaves the deadzone
+	var deadzone_offset = Vector3.ZERO
 	if abs(offset.x) > deadzone_size.x:
-		cam_pos.x = lerp(cam_pos.x, player_pos.x, 0.1)
+		deadzone_offset.x = offset.x - sign(offset.x) * deadzone_size.x
 	if abs(offset.y) > deadzone_size.y:
-		cam_pos.y = lerp(cam_pos.y, player_pos.y, 0.1)
-	
-	global_transform.origin = cam_pos
+		deadzone_offset.y = offset.y - sign(offset.y) * deadzone_size.y
+
+	# New desired position is camera's current position plus offset (if any)
+	var target_pos = cam_pos + deadzone_offset
+
+	# Smoothly move (delta-based lerp for frame-rate independence)
+	global_transform.origin = global_transform.origin.lerp(target_pos, delta * follow_speed)

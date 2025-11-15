@@ -3,20 +3,32 @@
 [ext_resource type="Script" uid="uid://drw1mvnjxmxk8" path="res://Scripts/Laser.gd" id="1_soxky"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_soxky"]
+top_radius = 0.2
+bottom_radius = 0.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_soxky"]
-albedo_color = Color(0, 0.30980393, 1, 1)
+shading_mode = 0
+albedo_color = Color(0, 1, 0, 1)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_cfk2d"]
 
-[node name="Laser" type="Area3D"]
+[node name="Lasers" type="Area3D"]
 script = ExtResource("1_soxky")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 8.742278e-08, 0, 3.821371e-15, 4.371139e-08, -1, -8.742278e-08, -1, -4.371139e-08, 0.31, 0, 0)
 mesh = SubResource("CylinderMesh_soxky")
 surface_material_override/0 = SubResource("StandardMaterial3D_soxky")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+transform = Transform3D(0.5, 0, 0, 0, -2.1855694e-08, -0.5, 0, 0.5, -2.1855694e-08, 0.31, 0, -0.51392573)
+shape = SubResource("CylinderShape3D_cfk2d")
+
+[node name="Body2" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 8.742278e-08, 0, 3.821371e-15, 4.371139e-08, -1, -8.742278e-08, -1, -4.371139e-08, -0.31, 0, 0)
+mesh = SubResource("CylinderMesh_soxky")
+surface_material_override/0 = SubResource("StandardMaterial3D_soxky")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, -2.1855694e-08, -0.5, 0, 0.5, -2.1855694e-08, -0.31, 0, -0.51392573)
 shape = SubResource("CylinderShape3D_cfk2d")
