@@ -2,29 +2,35 @@
 class_name Player extends Node3D
 
 # -- Movement and bounds settings --
-@export var brake_mult           : float = 0.5       # Speed multiplier when braking
-@export var rotation_smoothness  : float = 8.0       # How smoothly the ship rotates/tilts (higher=snapper)
-@export var max_bank_angle       : float = 45.0      # Maximum tilt/roll (degrees) under normal movement
-@export var max_pitch_angle      : float = 45.0      # Maximum up/down tilt (degrees)
-@export var hard_bank_angle      : float = 90.0      # Angle (degrees) to roll when hard banking (Q/E or triggers)
-@export var hard_bank_smoothness : float = 10.0      # How quickly the ship snaps into/out of hard bank
-@export var follow_speed         : float = 8.0       # How snappy Player follows Center
-@export var follow_offset        : Vector3 = Vector3(0, 0, 5)
-@export var reticle_x_max        : float = 16       # Max reticle offset X (left/right)
-@export var reticle_y_max        : float = 9       # Max reticle offset Y (up/down)
-@export var reticle_sensitivity  : float = 1.0
-@export var laser_scene          : PackedScene       # Scene for the laser shot (assign in inspector)
+@export var brake_mult           : float = 0.5                 # Speed multiplier when braking
+@export var rotation_smoothness  : float = 8.0                 # How smoothly the ship rotates/tilts (higher = snappier)
+@export var max_bank_angle       : float = 45.0                # Maximum tilt/roll (degrees) under normal movement
+@export var max_pitch_angle      : float = 45.0                # Maximum up/down tilt (degrees)
+@export var hard_bank_angle      : float = 90.0                # Angle (degrees) to roll when hard banking (Q/E or triggers)
+@export var hard_bank_smoothness : float = 10.0                # How quickly the ship snaps into/out of hard bank
+@export var follow_speed         : float = 8.0                 # How snappy Player follows Center
+@export var follow_offset        : Vector3 = Vector3(0, 0, 5)  # How far back PlayerMesh stays
+@export var reticle_x_max        : float = 16                  # Max reticle offset X (left/right)
+@export var reticle_y_max        : float = 9                   # Max reticle offset Y (up/down)
+@export var reticle_sensitivity  : float = 1.0                 # How fast the reticle snaps across the screen when aiming
+@export var laser_scene          : PackedScene                 # Scene for the laser shot (so we can externally edit)
 
-@onready var mesh     : Node3D   = $PlayerMesh
-@onready var reticle1 : Sprite3D = $Reticle1
-@onready var reticle2 : Sprite3D = $Reticle2
-@onready var center   : Node3D   = $"../Center"
+@onready var mesh           : Node3D              = $PlayerMesh
+@onready var reticle1       : Sprite3D            = $Reticle1
+@onready var reticle2       : Sprite3D            = $Reticle2
+@onready var center         : Node3D              = $"../Center"
+@onready var boost_sfx      : AudioStreamPlayer3D = $SFX/Boost
+@onready var brake_sfx      : AudioStreamPlayer3D = $SFX/Brake
+@onready var laser_sfx      : AudioStreamPlayer3D = $SFX/Laser
+@onready var barrelroll_sfx : AudioStreamPlayer3D = $SFX/BarrelRoll
 
 # -- Player state variables --
 var last_speed_mult   : float  = 1.0           # Used if you want to check last speed for effects (not used yet)
+
 var is_boosting       : bool   = false         # True if currently boosting
+var was_boosting      : bool   = false
 var is_braking        : bool   = false         # True if braking
-var reticle_ui        : CanvasLayer            # Should be set from outside to point at ReticleControl
+var was_braking       : bool   = false
 var prev_position = Vector3.ZERO               # Used for velocity if you want it
 var displayed_rotation: Vector3 = Vector3.ZERO # Smooth rotation for mesh
 var reticle_pos: Vector2 = Vector2.ZERO
@@ -151,9 +157,21 @@ func _process(delta):
 	if Input.is_action_just_pressed("ui_accept"):
 		shoot_laser()
 
-	# Update boost/brake states (keep if needed for effects)
+	# Update boost/brake states
 	is_boosting = Input.is_action_pressed("ui_boost")
+	if is_boosting and not was_boosting:
+		# Only play sound when boost begins
+		boost_sfx.play()
+	#elif not is_boosting and was_boosting:
+		#boost_sfx.stop()
+	was_boosting = is_boosting
+	
 	is_braking = Input.is_action_pressed("ui_brake")
+	if is_braking and not was_braking:
+		brake_sfx.play()
+	#elif not is_braking and was_braking:
+		#brake_sfx.stop()
+	was_braking = is_braking
 
 	# Always update displayed_rotation based on input, no matter if rolling
 	var is_hard_bank_left = Input.is_action_pressed("ui_bank_left")
@@ -194,11 +212,13 @@ func shoot_laser():
 		get_parent().add_child(laser)
 		# Offset: how far in-front of the Player to spawn the laser
 		var laser_forward_offset = 1.5
-		# Calculate the spawn position slightly in front of mesh
 		var spawn_pos = mesh.global_transform.origin + (-mesh.global_transform.basis.z.normalized() * laser_forward_offset)
 		laser.global_transform.origin = spawn_pos
 		# Laser shoots toward Reticle2
 		laser.look_at(reticle2.global_transform.origin, Vector3.UP)
+
+	# Play the Laser sfx
+	laser_sfx.play()
 
 func start_barrel_roll(direction: int):
 	print("Player.gd -> start_barrel_roll() called!")
@@ -206,3 +226,6 @@ func start_barrel_roll(direction: int):
 		is_doing_barrel_roll = true
 		barrel_direction = direction
 		barrel_elapsed = 0.0
+	
+	# Play the BarrelRoll sfx
+	barrelroll_sfx.play()

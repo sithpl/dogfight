@@ -37,7 +37,7 @@ func _process(delta):
 		speed_mult = brake_mult           # Go slower
 	scroll_speed = base_scroll_speed * speed_mult
 
-	# Change camera FOV (field of view) depending on speed for cool feeling
+	# Change camera FOV depending on speed for cool feeling
 	var target_fov = default_fov
 	if player.is_boosting:
 		target_fov = boost_fov
@@ -47,7 +47,7 @@ func _process(delta):
 	# Smoothly interpolate camera fov for polish effect
 	camera.fov = lerp(camera.fov, target_fov, delta * fov_lerp_speed)
 
-	# --- Scroll ("move") the ground towards the camera so it looks like we're flying ---
+	# --- Scroll the ground towards the camera so it looks like flying ---
 	ground.position.z -= scroll_speed * delta
 
 	# Snap the ground forward to "loop" it if it goes too far back
