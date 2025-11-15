@@ -10,15 +10,15 @@ class_name Player extends Node3D
 @export var hard_bank_smoothness : float = 10.0      # How quickly the ship snaps into/out of hard bank
 @export var follow_speed         : float = 8.0       # How snappy Player follows Center
 @export var follow_offset        : Vector3 = Vector3(0, 0, 5)
-@export var reticle_x_max : float = 8.0    # Max reticle offset X (left/right)
-@export var reticle_y_max : float = 4.5    # Max reticle offset Y (up/down)
-@export var deadzone_x : float = 2.5  
-@export var deadzone_y : float = 1.2
+@export var reticle_x_max        : float = 16       # Max reticle offset X (left/right)
+@export var reticle_y_max        : float = 9       # Max reticle offset Y (up/down)
+@export var reticle_sensitivity  : float = 1.0
 @export var laser_scene          : PackedScene       # Scene for the laser shot (assign in inspector)
 
-@onready var mesh    : Node3D   = $PlayerMesh
-@onready var reticle : Sprite3D = $Reticle
-@onready var center  : Node3D   = $"../Center"
+@onready var mesh     : Node3D   = $PlayerMesh
+@onready var reticle1 : Sprite3D = $Reticle1
+@onready var reticle2 : Sprite3D = $Reticle2
+@onready var center   : Node3D   = $"../Center"
 
 # -- Player state variables --
 var last_speed_mult   : float  = 1.0           # Used if you want to check last speed for effects (not used yet)
@@ -27,6 +27,7 @@ var is_braking        : bool   = false         # True if braking
 var reticle_ui        : CanvasLayer            # Should be set from outside to point at ReticleControl
 var prev_position = Vector3.ZERO               # Used for velocity if you want it
 var displayed_rotation: Vector3 = Vector3.ZERO # Smooth rotation for mesh
+var reticle_pos: Vector2 = Vector2.ZERO
 
 # -- Barrel roll state --
 var is_doing_barrel_roll: bool = false         # Are we currently spinning?
@@ -77,14 +78,35 @@ func _process(delta):
 	if Input.is_action_pressed("ui_right"):
 		input_vector.x -= 1  # left
 	input_vector = input_vector.normalized()
+	
+	# --- 2D Flat Reticle Logic ---
+	var reticle_plane_distance = 10.0  # How far in front of the ship
+	var reticle_input = Vector2(
+		Input.get_axis("ui_left", "ui_right") * reticle_sensitivity,
+		Input.get_axis("ui_down", "ui_up") * reticle_sensitivity
+	)
+	
+	# Smoothly interpolate reticle position to target each frame
+	var reticle_lerp_speed = 5.0 # You can tweak this value
+	var target_reticle_pos = Vector2(
+		clamp(reticle_input.x * reticle_x_max, -reticle_x_max, reticle_x_max),
+		clamp(reticle_input.y * reticle_y_max, -reticle_y_max, reticle_y_max)
+	)
+	reticle_pos = reticle_pos.lerp(target_reticle_pos, delta * reticle_lerp_speed)
 
-	# --- Reticle projection (for nose-following) with offset ---
-	var forward = -mesh.global_transform.basis.z.normalized()
-	var nose_pos = mesh.global_transform.origin
-	var right = mesh.global_transform.basis.x.normalized()
-	var up = mesh.global_transform.basis.y.normalized()
-	var reticle_offset = -right * input_vector.x * reticle_x_max + up * input_vector.y * reticle_y_max
-	reticle.global_transform.origin = nose_pos + reticle_offset + forward * 10
+	# Generate the base for the reticle plane: origin + (-basis.z)*distance is directly ahead of player
+	var reticle_plane_origin = mesh.global_transform.origin + -mesh.global_transform.basis.z.normalized() * reticle_plane_distance
+
+	# Move reticle locally in that plane (X, Y only)
+	var flat_reticle_pos = reticle_plane_origin + Vector3(-reticle_pos.x, reticle_pos.y, 0)
+	reticle2.global_transform.origin = flat_reticle_pos
+
+	# Mirror Reticle2 logic for Reticle1, putting it between PlayerMesh and Reticle2
+	var reticle1_lerp_factor = 0.1 # 0.5 for halfway, 0.7 is closer to Reticle2
+	reticle1.global_transform.origin = reticle2.global_transform.origin.lerp(mesh.global_transform.origin, reticle1_lerp_factor)
+	
+	if mesh and reticle2:
+		mesh.look_at(reticle2.global_transform.origin, Vector3.UP)
 
 	# --- Barrel roll cooldown ---
 	if barrel_cooldown_timer > 0.0:
@@ -133,36 +155,33 @@ func _process(delta):
 	is_boosting = Input.is_action_pressed("ui_boost")
 	is_braking = Input.is_action_pressed("ui_brake")
 
-	# --- MODEL ROTATION (bank/pitch/roll) ---
+	# Always update displayed_rotation based on input, no matter if rolling
+	var is_hard_bank_left = Input.is_action_pressed("ui_bank_left")
+	var is_hard_bank_right = Input.is_action_pressed("ui_bank_right")
+	var bank = input_vector.x * max_bank_angle
+	var pitch = -input_vector.y * max_pitch_angle
+	var hard_bank_target = 0.0
+	if is_hard_bank_left:
+		hard_bank_target = hard_bank_angle
+	elif is_hard_bank_right:
+		hard_bank_target = -hard_bank_angle
+	var use_hard_bank = is_hard_bank_left or is_hard_bank_right
+	var target_bank = lerp(bank, hard_bank_target, float(use_hard_bank))
+	var target_rotation = Vector3(-pitch, 0, target_bank)
+	var smooth_strength = hard_bank_smoothness if use_hard_bank else rotation_smoothness
+	displayed_rotation = displayed_rotation.lerp(target_rotation, delta * smooth_strength)
+
+	# Now handle barrel roll overlay
 	if is_doing_barrel_roll:
-		# Barrel roll is active - set rotation to spinning around Z
 		barrel_elapsed += delta
-		var t = clamp(barrel_elapsed / barrel_duration, 0.0, 1.0)
-		var roll_angle = lerp(0.0, 360.0 * barrel_direction, t)
-		var pitch = -input_vector.y * max_pitch_angle
-		mesh.rotation_degrees = Vector3(pitch, 0, -roll_angle)
+		var roll_angle = 360.0 * barrel_direction * (barrel_elapsed / barrel_duration)
+		mesh.rotation_degrees = Vector3(displayed_rotation.x, displayed_rotation.y, displayed_rotation.z - roll_angle)
 		if barrel_elapsed >= barrel_duration:
 			is_doing_barrel_roll = false
 			barrel_elapsed = 0.0
 			barrel_direction = 0
 			barrel_cooldown_timer = barrel_cooldown
-
 	else:
-		# Normal flight & hard bank logic.
-		var is_hard_bank_left = Input.is_action_pressed("ui_bank_left")
-		var is_hard_bank_right = Input.is_action_pressed("ui_bank_right")
-		var bank = input_vector.x * max_bank_angle
-		var pitch = -input_vector.y * max_pitch_angle
-		var hard_bank_target = 0.0
-		if is_hard_bank_left:
-			hard_bank_target = hard_bank_angle
-		elif is_hard_bank_right:
-			hard_bank_target = -hard_bank_angle
-		var use_hard_bank = is_hard_bank_left or is_hard_bank_right
-		var target_bank = lerp(bank, hard_bank_target, float(use_hard_bank))
-		var target_rotation = Vector3(-pitch, 0, target_bank)
-		var smooth_strength = hard_bank_smoothness if use_hard_bank else rotation_smoothness
-		displayed_rotation = displayed_rotation.lerp(target_rotation, delta * smooth_strength)
 		mesh.rotation_degrees = displayed_rotation
 
 func get_brake_multiplier() -> float:
@@ -170,10 +189,16 @@ func get_brake_multiplier() -> float:
 
 func shoot_laser():
 	print("Player.gd -> shoot_laser() called!")
-	if laser_scene:
+	if laser_scene and mesh and reticle2:
 		var laser = laser_scene.instantiate()
 		get_parent().add_child(laser)
-		laser.global_transform = global_transform
+		# Offset: how far in-front of the Player to spawn the laser
+		var laser_forward_offset = 1.5
+		# Calculate the spawn position slightly in front of mesh
+		var spawn_pos = mesh.global_transform.origin + (-mesh.global_transform.basis.z.normalized() * laser_forward_offset)
+		laser.global_transform.origin = spawn_pos
+		# Laser shoots toward Reticle2
+		laser.look_at(reticle2.global_transform.origin, Vector3.UP)
 
 func start_barrel_roll(direction: int):
 	print("Player.gd -> start_barrel_roll() called!")

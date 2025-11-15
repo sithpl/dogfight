@@ -2,13 +2,13 @@
 
 [ext_resource type="Script" uid="uid://n4mnikfsc3v4" path="res://Scripts/Main.gd" id="1_idj7w"]
 [ext_resource type="Script" uid="uid://b3ymb3vdvhbdu" path="res://Scripts/Player.gd" id="1_r150o"]
+[ext_resource type="Script" uid="uid://u6r8m41cqi70" path="res://Scripts/Gameplay.gd" id="2_bmxlf"]
 [ext_resource type="Script" uid="uid://bjoxf672245cw" path="res://Scripts/PlayerCam.gd" id="2_vy5pj"]
 [ext_resource type="PackedScene" uid="uid://b6nocjktlr8bb" path="res://Scenes/Obstacles.tscn" id="3_kln2b"]
 [ext_resource type="Texture2D" uid="uid://yqs20txhmh4w" path="res://Assets/darkgrass.png" id="4_rgh2o"]
 [ext_resource type="PackedScene" uid="uid://b33d2ju4ric2q" path="res://Scenes/Laser.tscn" id="4_v1gob"]
-[ext_resource type="Script" uid="uid://5vrqydxtytao" path="res://Scripts/Center.gd" id="5_50glp"]
 [ext_resource type="PackedScene" uid="uid://dol1nc3s525hv" path="res://Scenes/Arwing.tscn" id="5_jw32o"]
-[ext_resource type="Texture2D" uid="uid://coog2spyv6i47" path="res://Assets/aim3.png" id="6_50glp"]
+[ext_resource type="Texture2D" uid="uid://dg5jpiraocf7y" path="res://Assets/aim4.png" id="6_vy5pj"]
 
 [sub_resource type="Environment" id="Environment_rgh2o"]
 ambient_light_energy = 0.6
@@ -48,18 +48,22 @@ light_energy = 1.6
 shadow_enabled = true
 
 [node name="Gameplay" type="Node3D" parent="."]
+script = ExtResource("2_bmxlf")
 
 [node name="Bounds" type="Camera3D" parent="Gameplay"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -10)
+fov = 90.0
 
 [node name="PlayerCam" type="Camera3D" parent="Gameplay/Bounds"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
 current = true
 script = ExtResource("2_vy5pj")
+deadzone_size = Vector2(5, 1.5)
 
 [node name="Player" type="CharacterBody3D" parent="Gameplay"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -5)
 script = ExtResource("1_r150o")
+follow_speed = 5.0
 laser_scene = ExtResource("4_v1gob")
 
 [node name="PlayerMesh" parent="Gameplay/Player" instance=ExtResource("5_jw32o")]
@@ -69,18 +73,28 @@ transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 transform = Transform3D(-5.2453668e-08, -1.2, 0, 1.2, -5.2453668e-08, 0, 0, 0, 1.2, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_50glp")
 
-[node name="Reticle" type="Sprite3D" parent="Gameplay/Player"]
-transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, -10)
-modulate = Color(18.892157, 18.892157, 18.892157, 1)
-shaded = true
+[node name="Reticle1" type="Sprite3D" parent="Gameplay/Player"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, -5)
+cast_shadow = 0
+modulate = Color(0, 1, 0.64705884, 0.6862745)
 double_sided = false
-texture = ExtResource("6_50glp")
+no_depth_test = true
+texture = ExtResource("6_vy5pj")
+
+[node name="Reticle2" type="Sprite3D" parent="Gameplay/Player"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, -10)
+cast_shadow = 0
+modulate = Color(0, 1, 0.64705884, 0.6862745)
+double_sided = false
+no_depth_test = true
+texture = ExtResource("6_vy5pj")
 
 [node name="Center" type="MeshInstance3D" parent="Gameplay"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+transparency = 1.0
+cast_shadow = 0
 mesh = SubResource("SphereMesh_50glp")
 skeleton = NodePath("../Player")
-script = ExtResource("5_50glp")
 
 [node name="Obstacles" parent="." instance=ExtResource("3_kln2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)

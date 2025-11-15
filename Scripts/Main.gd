@@ -22,7 +22,6 @@ const spawn_z_distance : float = 100.0    # How far ahead to spawn obstacles (Z+
 # --- Game state variables ---
 var scroll_speed     : float = 20.0       # Current scroll speed (can be boosted/braked)
 var spawn_timer      : float = 0.0        # Time left until next obstacle spawn
-var ground_offset    : float = 0.0        # (Not currently used, could be for tiling ground)
 
 func _ready():
 	pass
