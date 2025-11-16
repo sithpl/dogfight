@@ -7,6 +7,8 @@ class_name PlayerCam extends Camera3D
 @onready var player = get_node("../../Player")
 
 func _process(delta):
+	# delta = time since last frame (in seconds)
+	
 	var player_pos = player.global_transform.origin
 	var cam_pos = global_transform.origin
 

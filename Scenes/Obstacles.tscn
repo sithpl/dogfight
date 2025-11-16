@@ -1,8 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://b6nocjktlr8bb"]
+[gd_scene load_steps=5 format=3 uid="uid://b6nocjktlr8bb"]
+
+[ext_resource type="Script" uid="uid://dijqs2mhvd2eo" path="res://Scripts/Obstacles.gd" id="1_s1st6"]
+[ext_resource type="AudioStream" uid="uid://dmxglb1cx2wrp" path="res://Assets/explosion.wav" id="2_is2jm"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_l1wpp"]
 
-[node name="Obstacles" type="Node3D"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_l1wpp"]
+
+[node name="Obstacles" type="Area3D"]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)
+script = ExtResource("1_s1st6")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CapsuleMesh_l1wpp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_l1wpp")
+
+[node name="HitSFX" type="AudioStreamPlayer" parent="CollisionShape3D"]
+stream = ExtResource("2_is2jm")
+volume_db = -10.0
+pitch_scale = 0.5

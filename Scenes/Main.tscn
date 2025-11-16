@@ -1,9 +1,11 @@
-[gd_scene load_steps=22 format=3 uid="uid://dv6t735xqxort"]
+[gd_scene load_steps=25 format=3 uid="uid://dv6t735xqxort"]
 
 [ext_resource type="Script" uid="uid://n4mnikfsc3v4" path="res://Scripts/Main.gd" id="1_idj7w"]
 [ext_resource type="Script" uid="uid://b3ymb3vdvhbdu" path="res://Scripts/Player.gd" id="1_r150o"]
 [ext_resource type="Script" uid="uid://u6r8m41cqi70" path="res://Scripts/Gameplay.gd" id="2_bmxlf"]
+[ext_resource type="PackedScene" uid="uid://bsaxnv6uo08cq" path="res://Scenes/HUD.tscn" id="2_h1m7h"]
 [ext_resource type="Script" uid="uid://bjoxf672245cw" path="res://Scripts/PlayerCam.gd" id="2_vy5pj"]
+[ext_resource type="PackedScene" uid="uid://dqsuvkurtebk4" path="res://Scenes/StartMenu.tscn" id="3_erwvk"]
 [ext_resource type="PackedScene" uid="uid://b6nocjktlr8bb" path="res://Scenes/Obstacles.tscn" id="3_kln2b"]
 [ext_resource type="Texture2D" uid="uid://yqs20txhmh4w" path="res://Assets/darkgrass.png" id="4_rgh2o"]
 [ext_resource type="PackedScene" uid="uid://b33d2ju4ric2q" path="res://Scenes/Laser.tscn" id="4_v1gob"]
@@ -13,6 +15,7 @@
 [ext_resource type="AudioStream" uid="uid://73ny83ygb146" path="res://Assets/boost-sfx.wav" id="9_4kpch"]
 [ext_resource type="AudioStream" uid="uid://bqtek2h5rrs4m" path="res://Assets/brake-sfx.wav" id="10_grg3l"]
 [ext_resource type="AudioStream" uid="uid://cj1lkkedysb4b" path="res://Assets/barrelroll-sfx-temp.wav" id="11_frkhe"]
+[ext_resource type="AudioStream" uid="uid://bsyddeoc2lsxx" path="res://Assets/starfox64-corneria-remix.wav" id="14_1p5hy"]
 
 [sub_resource type="Environment" id="Environment_rgh2o"]
 ambient_light_energy = 0.6
@@ -43,6 +46,19 @@ size = Vector2(200, 20)
 [node name="Main" type="Node3D"]
 script = ExtResource("1_idj7w")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+z_index = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="HUD" parent="." instance=ExtResource("2_h1m7h")]
+
+[node name="StartMenu" parent="." instance=ExtResource("3_erwvk")]
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_rgh2o")
 
@@ -67,8 +83,8 @@ deadzone_size = Vector2(5, 1.5)
 [node name="Player" type="CharacterBody3D" parent="Gameplay"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -5)
 script = ExtResource("1_r150o")
-follow_speed = 5.0
 laser_scene = ExtResource("4_v1gob")
+barrel_cooldown = 0.01
 
 [node name="PlayerMesh" parent="Gameplay/Player" instance=ExtResource("5_jw32o")]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -78,7 +94,7 @@ transform = Transform3D(-5.2453668e-08, -1.2, 0, 1.2, -5.2453668e-08, 0, 0, 0, 1
 shape = SubResource("CapsuleShape3D_50glp")
 
 [node name="Reticle1" type="Sprite3D" parent="Gameplay/Player"]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5)
 cast_shadow = 0
 modulate = Color(0, 1, 0.64705884, 0.6862745)
 double_sided = false
@@ -86,7 +102,7 @@ no_depth_test = true
 texture = ExtResource("6_vy5pj")
 
 [node name="Reticle2" type="Sprite3D" parent="Gameplay/Player"]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, -10)
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0, -10)
 cast_shadow = 0
 modulate = Color(0, 1, 0.64705884, 0.6862745)
 double_sided = false
@@ -115,7 +131,7 @@ mesh = SubResource("SphereMesh_50glp")
 skeleton = NodePath("../Player")
 
 [node name="Obstacles" parent="." instance=ExtResource("3_kln2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
 
 [node name="Ground" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
@@ -125,3 +141,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_rgh2o")
 [node name="Horizon" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 120)
 mesh = SubResource("PlaneMesh_rgh2o")
+
+[node name="Theme" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("14_1p5hy")
+volume_db = -10.0

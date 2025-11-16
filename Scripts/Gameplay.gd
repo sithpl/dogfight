@@ -14,10 +14,13 @@ class_name Gameplay extends Node3D
 @onready var reticle2 = $Player/Reticle2
 
 func _ready():
+	# Called once when scene starts
 	#global_transform.origin = Vector3(0, 0, 0) # Center at world origin - OLD
 	pass
 
 func _process(delta):
+	# delta = time since last frame (in seconds)
+	
 	var input_vector = Vector3.ZERO
 	if Input.is_action_pressed("ui_up"):
 		input_vector.y += 1
@@ -37,5 +40,5 @@ func _process(delta):
 	center.global_transform.origin = new_pos
 
 	# Reticle positions
-	reticle1.global_transform.origin = global_transform.origin + Vector3(0, 0, reticle1_offset_z)
-	reticle2.global_transform.origin = global_transform.origin + Vector3(0, 0, reticle2_offset_z)
+	reticle1.global_transform.origin = center.global_transform.origin + Vector3(0, 0, reticle1_offset_z)
+	reticle2.global_transform.origin = center.global_transform.origin + Vector3(0, 0, reticle2_offset_z)

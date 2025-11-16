@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://bsaxnv6uo08cq"]
+
+[ext_resource type="Script" uid="uid://cgjj5ony0ij0v" path="res://Scripts/HUD.gd" id="1_sd512"]
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sd512")
+
+[node name="MissionStart" type="Panel" parent="."]
+custom_minimum_size = Vector2(275, 125)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -101.0
+offset_top = -213.0
+offset_right = 99.0
+offset_bottom = -88.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MissionStart"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SPACER" type="Label" parent="MissionStart/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MissionStart/VBoxContainer"]
+layout_mode = 2
+text = "Mission Start"
+horizontal_alignment = 1
+
+[node name="SPACER2" type="Label" parent="MissionStart/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="MissionStart/VBoxContainer"]
+layout_mode = 2
+text = "Hit as many targets as you can!"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="SPACER3" type="Label" parent="MissionStart/VBoxContainer"]
+layout_mode = 2
+
+[node name="ScoreCounter" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 108.0
+offset_bottom = 43.0
+theme_override_font_sizes/font_size = 30
