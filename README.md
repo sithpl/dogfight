@@ -1,6 +1,8 @@
 # dogfight
-https://github.com/user-attachments/assets/2934ed9a-ad50-4820-83c9-0eba894dfa7c
 
+https://github.com/user-attachments/assets/18e3e12c-eeb8-4d3c-bc3f-a6705225abf8
 
 
 My attempt at a StarFox 64 knockoff
+
+https://sithadmin.itch.io/dogfight
