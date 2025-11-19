@@ -25,6 +25,8 @@ class_name Player extends Node3D
 @onready var brake_sfx      : AudioStreamPlayer3D = $SFX/Brake
 @onready var laser_sfx      : AudioStreamPlayer3D = $SFX/Laser
 @onready var barrelroll_sfx : AudioStreamPlayer3D = $SFX/BarrelRoll
+@onready var boost_particles: CPUParticles3D = $PlayerMesh/BoostParticles
+@onready var boost_light: OmniLight3D = $PlayerMesh/BoostLight
 
 # -- Player state variables --
 var is_boosting       : bool   = false         # True if currently boosting
@@ -65,6 +67,16 @@ func _ready():
 func _process(delta):
 	# delta = time since last frame (in seconds)
 	
+	# Animate particles based on boost/brake
+	if is_boosting:
+		boost_light.light_energy = 8.0
+	elif is_braking:
+		boost_light.light_energy = 2.5
+	else: 
+		boost_particles.emitting = true
+		boost_light.light_energy = 0.2
+
+
 	# --- FOLLOW THE CENTER NODE ---
 	if center:
 		var offset = center.global_transform.basis.x * follow_offset.x \

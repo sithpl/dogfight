@@ -18,6 +18,7 @@ class_name Main extends Node3D
 @onready var ground      : MeshInstance3D    = $Ground                       # Floor mesh
 @onready var horizon     : MeshInstance3D    = $Horizon                      # Distant horizon mesh
 @onready var theme       : AudioStreamPlayer = $Theme
+@onready var voice_sfx   : AudioStreamPlayer = $VoiceSFX
 
 @onready var hud_scene = preload("res://Scenes/HUD.tscn")
 @onready var start_menu_scene = preload("res://Scenes/StartMenu.tscn")
@@ -31,6 +32,7 @@ var hud
 var score : int = 0
 var start_menu
 var menu_is_open: bool = false
+var is_mission_finished: bool = false
 
 func _ready():
 	# Called once when scene starts
@@ -63,6 +65,10 @@ func _input(event):
 func _process(delta):
 	# delta = time since last frame (in seconds)
 	#print("menu_is_open: ",menu_is_open)
+
+	if score >= 10 and not is_mission_finished:
+		is_mission_finished = true
+		game_finished()
 
 	# Calculate speed modifier based on player actions
 	var speed_mult := 1.0
@@ -153,3 +159,17 @@ func show_start_menu():
 func on_start_menu_closed():
 	print("Main.gd -> on_start_menu_closed() called!")
 	menu_is_open = false
+	
+func game_finished():
+	voice_sfx.play()
+	await voice_sfx.finished # Wait until audio ends
+
+	var tween = get_tree().create_tween()
+	tween.tween_property(fade_effect, "modulate:a", 1.0, 0.5) # Fade alpha from 0 to 1 over 0.5s
+	await tween.finished
+
+	start_menu = start_menu_scene.instantiate()
+	add_child(start_menu)
+	start_menu.show()
+	start_menu.pause_label.text = "MISSION COMPLETE"
+	get_tree().paused = true
