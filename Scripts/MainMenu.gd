@@ -10,6 +10,7 @@ var main_scene = preload("res://Scenes/Main.tscn")
 
 func _ready():
 	# Called once when scene starts
+	
 	# Fade in effect
 	fade_effect.modulate.a = 1.0
 	var tween = get_tree().create_tween()

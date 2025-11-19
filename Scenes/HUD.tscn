@@ -47,7 +47,7 @@ layout_mode = 2
 
 [node name="Label2" type="Label" parent="MissionStart/VBoxContainer"]
 layout_mode = 2
-text = "Hit as many targets as you can!"
+text = "Test Arwing controls and try to hit 10 targets!"
 horizontal_alignment = 1
 autowrap_mode = 3
 

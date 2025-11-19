@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dv6t735xqxort"]
+[gd_scene load_steps=30 format=3 uid="uid://dv6t735xqxort"]
 
 [ext_resource type="Script" uid="uid://n4mnikfsc3v4" path="res://Scripts/Main.gd" id="1_idj7w"]
 [ext_resource type="Script" uid="uid://b3ymb3vdvhbdu" path="res://Scripts/Player.gd" id="1_r150o"]
@@ -16,9 +16,28 @@
 [ext_resource type="AudioStream" uid="uid://bqtek2h5rrs4m" path="res://Assets/brake-sfx.wav" id="10_grg3l"]
 [ext_resource type="AudioStream" uid="uid://cj1lkkedysb4b" path="res://Assets/barrelroll-sfx-temp.wav" id="11_frkhe"]
 [ext_resource type="AudioStream" uid="uid://bsyddeoc2lsxx" path="res://Assets/starfox64-corneria-remix.wav" id="14_1p5hy"]
+[ext_resource type="AudioStream" uid="uid://5kjvloa1kp1c" path="res://Assets/pep-goodgoing.wav" id="17_2w5on"]
 
 [sub_resource type="Environment" id="Environment_rgh2o"]
 ambient_light_energy = 0.6
+
+[sub_resource type="Gradient" id="Gradient_erwvk"]
+offsets = PackedFloat32Array(0, 0.4915254, 1)
+colors = PackedColorArray(1, 1, 1, 1, 18.892157, 0, 0, 0.3882353, 1.269618, 1.269618, 1.269618, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_8ibh4"]
+gradient = SubResource("Gradient_erwvk")
+fill_to = Vector2(0, 0.7032967)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2w5on"]
+transparency = 1
+albedo_texture = SubResource("GradientTexture2D_8ibh4")
+proximity_fade_distance = 0.04
+
+[sub_resource type="SphereMesh" id="SphereMesh_346fj"]
+lightmap_size_hint = Vector2i(5, 2)
+radius = 0.13
+height = 0.01
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_50glp"]
 
@@ -89,6 +108,23 @@ barrel_cooldown = 0.01
 [node name="PlayerMesh" parent="Gameplay/Player" instance=ExtResource("5_jw32o")]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
 
+[node name="BoostParticles" type="CPUParticles3D" parent="Gameplay/Player/PlayerMesh"]
+transform = Transform3D(1, -1.4692889e-09, -9.0264905e-08, -9.026489e-08, -0.032544307, -0.9994704, -1.4692887e-09, 0.9994704, -0.032544307, -0.0037102478, -0.020881524, 0.026977262)
+material_override = SubResource("StandardMaterial3D_2w5on")
+cast_shadow = 0
+lifetime = 0.5
+speed_scale = 5.0
+mesh = SubResource("SphereMesh_346fj")
+particle_flag_align_y = true
+gravity = Vector3(0, 0, -1)
+
+[node name="BoostLight" type="OmniLight3D" parent="Gameplay/Player/PlayerMesh"]
+transform = Transform3D(0.33333334, 2.9125486e-08, -3.0089303e-08, -2.9125488e-08, -0.010848211, -0.33315676, -3.0089303e-08, 0.33315676, -0.010848212, -0.0037102464, -0.020881524, 0.049651623)
+light_energy = 0.2
+light_size = 1.0
+omni_range = 0.149
+omni_attenuation = 1.206
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Gameplay/Player"]
 transform = Transform3D(-5.2453668e-08, -1.2, 0, 1.2, -5.2453668e-08, 0, 0, 0, 1.2, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_50glp")
@@ -145,3 +181,7 @@ mesh = SubResource("PlaneMesh_rgh2o")
 [node name="Theme" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("14_1p5hy")
 volume_db = -10.0
+
+[node name="VoiceSFX" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("17_2w5on")
+volume_db = 3.0

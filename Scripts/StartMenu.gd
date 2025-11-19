@@ -1,10 +1,12 @@
 class_name StartMenu extends Control
 
+@onready var pause_label    : Label   = $Panel/VBoxContainer/Paused
 @onready var restart_button : Button  = $Panel/VBoxContainer/Restart
 @onready var quit_button    : Button  = $Panel/VBoxContainer/Quit
 @onready var main_scene = $".."
 
 func _ready():
+	pause_label.text = "MISSION PAUSED"
 	restart_button.grab_focus()
 	#get_tree().paused = true
 	set_process_mode(PROCESS_MODE_WHEN_PAUSED)
