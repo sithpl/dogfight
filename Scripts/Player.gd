@@ -1,7 +1,7 @@
 # Player.gd
 class_name Player extends Node3D
 
-# -- Movement and bounds settings --
+# --- Gameplay settings ---
 @export var brake_mult           : float = 0.5                 # Speed multiplier when braking
 @export var rotation_smoothness  : float = 8.0                 # How smoothly the ship rotates/tilts (higher = snappier)
 @export var max_bank_angle       : float = 45.0                # Maximum tilt/roll (degrees) under normal movement
@@ -17,6 +17,7 @@ class_name Player extends Node3D
 @export var reticle_sensitivity  : float = 1.0                 # How fast the reticle snaps across the screen when aiming
 @export var laser_scene          : PackedScene                 # Scene for the laser shot (so it can be externally edited)
 
+# --- Node settings ---
 @onready var mesh           : Node3D              = $PlayerMesh
 @onready var reticle1       : Sprite3D            = $Reticle1
 @onready var reticle2       : Sprite3D            = $Reticle2
@@ -28,7 +29,7 @@ class_name Player extends Node3D
 @onready var boost_particles: CPUParticles3D = $PlayerMesh/BoostParticles
 @onready var boost_light: OmniLight3D = $PlayerMesh/BoostLight
 
-# -- Player state variables --
+# --- Game state variables ---
 var is_boosting       : bool   = false         # True if currently boosting
 var was_boosting      : bool   = false
 var is_braking        : bool   = false         # True if braking
@@ -37,36 +38,40 @@ var prev_position = Vector3.ZERO               # Used for velocity if you want i
 var displayed_rotation: Vector3 = Vector3.ZERO # Smooth rotation for mesh
 var reticle_pos: Vector2 = Vector2.ZERO
 
-# -- Barrel roll state --
+# --- Barrel Roll logic ---
+
+# Barrel roll state
 var is_doing_barrel_roll: bool = false         # Are we currently spinning?
 var barrel_direction: int = 0                  # +1 (right) or -1 (left), or 0 if not rolling
 var barrel_elapsed: float = 0.0                # How long this roll has run so far
 @export var barrel_duration: float = 0.3       # How long barrel roll lasts (in seconds)
 
-# -- Barrel roll cooldown --
-@export var barrel_cooldown: float = 0.7       # How long you must wait after roll (seconds)
+# Barrel roll cooldown
+@export var barrel_cooldown: float = 0.7       # How long player must wait after prevous barrel roll (seconds)
 var barrel_cooldown_timer: float = 0.0         # If >0, rolling is locked out
 
-# -- Double-tap detection for barrel roll --
+# Double-tap detection for barrel roll
 var tap_time_window: float = 0.25              # Max seconds between taps to count as double tap
 var left_tap_timer: float = 0.0                # Used to measure left double taps
 var left_tap_count: int = 0                    # How many left taps so far
-var right_tap_timer: float = 0.0               # For right double taps
+var right_tap_timer: float = 0.0               # Used to measure right double taps
 var right_tap_count: int = 0                   # How many right taps so far
 
+# Called once when scene starts
 func _ready():
-	# Called once when scene starts
-	prev_position = position                   # Init position for velocity use
+	# Init position for velocity use
+	prev_position = position
+	
 	#print("Player global pos:", global_transform.origin)
 	#reticle.scale = Vector3(0.25, 0.25, 0.25)
 	#reticle.pixel_size = 0.0010
 	#print("Player scale:", scale)
 	#print("Reticle scale:", reticle.scale)
-	
 
+# Called every frame
 func _process(delta):
 	# delta = time since last frame (in seconds)
-	
+
 	# Animate particles based on boost/brake
 	if is_boosting:
 		boost_light.light_energy = 8.0
@@ -77,7 +82,7 @@ func _process(delta):
 		boost_light.light_energy = 0.2
 
 
-	# --- FOLLOW THE CENTER NODE ---
+	# --- FOLLOW CENTER NODE LOGIC ---
 	if center:
 		var offset = center.global_transform.basis.x * follow_offset.x \
 				   + center.global_transform.basis.y * follow_offset.y \
@@ -86,8 +91,8 @@ func _process(delta):
 		global_transform.origin = global_transform.origin.lerp(target_pos, follow_speed * delta)
 		global_transform.basis = center.global_transform.basis
 
-	# --- Keyboard stick movement (applies on top of reticle follower) ---
-	# ONLY used for animating mesh (bank/pitch), not for moving Player node!
+	# Handle keyboard/controller input (applies on top of reticle follower)
+	# ONLY used for animating mesh (bank/pitch), NOT for moving Player node
 	var input_vector = Vector3.ZERO
 	if Input.is_action_pressed("ui_up"):
 		input_vector.y += 1
@@ -127,13 +132,15 @@ func _process(delta):
 	
 	mesh.look_at(reticle2.global_transform.origin, Vector3.UP)
 
-	# --- Barrel roll cooldown ---
+	# --- Barrel Roll logic ---
+
+	# Barrel roll cooldown
 	if barrel_cooldown_timer > 0.0:
 		barrel_cooldown_timer -= delta
 		if barrel_cooldown_timer < 0.0:
 			barrel_cooldown_timer = 0.0
 
-	# --- Barrel roll double-tap detection ---
+	# Barrel roll double-tap detection
 	# Only allow double-tap triggers if NOT currently rolling or cooling down
 	if !is_doing_barrel_roll and barrel_cooldown_timer == 0.0:
 		# Detect double tap LEFT for barrel roll (ui_bank_left)

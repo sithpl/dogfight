@@ -1,22 +1,26 @@
 # Laser.gd
 class_name Laser extends Area3D
 
-@export var laser_speed: float = 300.0
+# --- Gameplay settings ---
+@export var laser_speed: float = 300.0 # Default speed of laser projectile
 
+# Called once when scene starts
 func _ready():
-	# Called once when scene starts
+	# Connect area_entered signal to _on_area_entered handler
 	connect("area_entered", Callable(self, "_on_area_entered"))
 
-# Laser despawns if it hits another target with collision
-func _on_area_entered(_area):
-	queue_free()
-	#print("Laser.gd -> laser hit target!")
-
+# Called every frame
 func _process(delta):
 	# delta = time since last frame (in seconds)
 	
-	translate(Vector3(0, 0, -laser_speed * delta))  # -Z
-	# Free when far enough
+	# Move the laser forward along the -Z axis at laser_speed (units/sec)
+	translate(Vector3(0, 0, -laser_speed * delta))
+	# Despawn (free) the laser when it moves far enough along +Z axis
 	if global_position.z > 150:
 		queue_free()
 		#print("Laser.gd -> laser despawned!")
+
+# Despawns (free) laser when it hits another target with collision
+func _on_area_entered(_area):
+	#print("Laser.gd -> _on_area_entered() called!")
+	queue_free()
