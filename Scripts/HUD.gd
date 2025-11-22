@@ -2,9 +2,10 @@
 class_name HUD extends Control
 
 # --- Node settings ---
-@onready var mission_start       : Panel  = $MissionStart                      # Panel for MissionStart popup
-@onready var mission_start_text  : Label  = $MissionStart/VBoxContainer/Label  # MissionStart (objective) label
-@onready var score_counter       : Label  = $ScoreCounter                      # Score counter label
+@onready var mission_start       : Panel       = $MissionStart                      # Panel for MissionStart popup
+@onready var mission_start_text  : Label       = $MissionStart/VBoxContainer/Label  # MissionStart (objective) label
+@onready var score_counter       : Label       = $ScoreCounter                      # Score counter label
+@onready var boost_meter         : ProgressBar = $BoostMeter
 
 # Called once when scene starts
 func _ready():

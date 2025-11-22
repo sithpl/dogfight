@@ -14,7 +14,7 @@ albedo_color = Color(0, 1, 0.8901961, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_soxky"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cfk2d"]
-albedo_color = Color(0.56130135, 1.1638972, 1.0370349, 1)
+albedo_color = Color(0.561, 1.164, 1.037, 1)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_cfk2d"]
 
@@ -56,3 +56,9 @@ surface_material_override/0 = SubResource("StandardMaterial3D_7lyxe")
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
 transform = Transform3D(2, 0, 0, 0, -8.742278e-08, -2, 0, 2, -8.742278e-08, -0.5, 0, -1.5)
 shape = SubResource("CylinderShape3D_cfk2d")
+
+[node name="GlowLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.2018907)
+light_color = Color(0.561, 1.164, 1.037, 1)
+light_energy = 10.0
+light_size = 1.0

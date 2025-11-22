@@ -58,6 +58,14 @@ layout_mode = 2
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
-offset_right = 108.0
-offset_bottom = 43.0
+offset_right = 119.0
+offset_bottom = 62.0
 theme_override_font_sizes/font_size = 30
+
+[node name="BoostMeter" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 61.0
+offset_right = 121.0
+offset_bottom = 78.0
+show_percentage = false

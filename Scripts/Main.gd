@@ -2,10 +2,10 @@
 class_name Main extends Node3D
 
 # --- Gameplay settings ---
-@export var base_scroll_speed   : float = 20.0    # How fast the world scrolls by default (units/sec)
-@export var boost_mult          : float = 2.0     # Multiplies base_scroll_speed when boosting
+@export var base_scroll_speed   : float = 15.0    # How fast the world scrolls by default (units/sec)
+@export var boost_mult          : float = 1.5     # Multiplies base_scroll_speed when boosting
 @export var brake_mult          : float = 0.5     # Multiplies base_scroll_speed when braking
-@export var spawn_interval      : float = 1.5     # Seconds between spawns of obstacles
+@export var spawn_interval      : float = 1.5     # Seconds between spawns of targets
 @export var default_fov         : float = 90.0    # Camera FOV by default
 @export var boost_fov           : float = 115.0   # Camera FOV when boosting (speed effect)
 @export var brake_fov           : float = 75.0    # Camera FOV when braking (tunnel vision effect)
@@ -15,7 +15,7 @@ class_name Main extends Node3D
 @onready var fade_effect : ColorRect         = $ColorRect                    # ColorRect used for fade effect (set at Z Index 1)
 @onready var player      : CharacterBody3D   = $Gameplay/Player              # Player node
 @onready var camera      : Camera3D          = $Gameplay/Bounds/PlayerCam    # Main camera (controls view & FOV)
-@onready var obstacles   : Node3D            = $Obstacles                    # Obstacles node
+@onready var targets     : Node3D            = $Targets                      # Targets node
 @onready var ground      : MeshInstance3D    = $Ground                       # Floor mesh
 @onready var horizon     : MeshInstance3D    = $Horizon                      # Distant horizon mesh
 @onready var theme       : AudioStreamPlayer = $Theme                        # Level background music
@@ -26,11 +26,11 @@ class_name Main extends Node3D
 @onready var start_menu_scene = preload("res://Scenes/StartMenu.tscn")
 
 # --- Constants ---
-const spawn_z_distance : float = 100.0    # How far ahead to spawn obstacles (Z+)
+const spawn_z_distance : float = 100.0    # How far ahead to spawn targets (Z+)
 
 # --- Game state variables ---
 var scroll_speed     : float = 20.0       # Current scroll speed (can be boosted/braked)
-var spawn_timer      : float = 0.0        # Time left until next obstacle spawn
+var spawn_timer      : float = 0.0        # Time left until next target spawn
 var hud                                   # Used to instantiate preloaded $HUD scene (hud_scene)
 var score : int = 0                       # Score total
 var start_menu                            # Used to instantiate preloaded $StartMenu scene (start_menu_scene)
@@ -135,32 +135,34 @@ func _process(delta):
 		ground.position.z += 50
 		#print("Main.gd -> ground reset")
 
-	# Move all obstacles backwards (towards camera/player)
-	for obstacle in obstacles.get_children():
-		obstacle.translate(Vector3(0, 0, -scroll_speed * delta))
-		# Remove (free) the obstacle if it passes behind the camera/player X units
-		if obstacle.position.z < -10:
-			obstacle.queue_free()
-			#print("Main.gd -> obstacle.queue_free() called")
+	# Move all targets backwards (towards camera/player)
+	for target in targets.get_children():
+		target.translate(Vector3(0, 0, -scroll_speed * delta))
+		# Remove (free) the target if it passes behind the camera/player X units
+		if target.position.z < -10:
+			target.queue_free()
+			if $Gameplay/Player._lock_target != null:
+				$Gameplay/Player._clear_lock()
+			#print("Main.gd -> target.queue_free() called")
 			# Subtract 1 hit from total score
 			score -= 1
 			#print("Hits: -1")
 			# Call set_score in HUD.gd
 			hud.set_score(score)
 
-	# --- Spawn obstacles at intervals ---
+	# --- Spawn targets at intervals ---
 	spawn_timer -= delta
 	if spawn_timer <= 0.0:
-		spawn_obstacle()
+		spawn_target()
 		spawn_timer = spawn_interval    # Reset timer
 
-# Creates a new obstacle ahead of the player
-func spawn_obstacle():
-	#print("Main.gd -> spawn_obstacle() called")
-	var scene = preload("res://Scenes/Obstacles.tscn")
+# Creates a new target ahead of the player
+func spawn_target():
+	#print("Main.gd -> spawn_target() called")
+	var scene = preload("res://Scenes/Targets.tscn")
 	var inst = scene.instantiate()
 	
-	# Randomly set obstacle X/Y, always ahead of player in +Z
+	# Randomly set target X/Y, always ahead of player in +Z
 	var player_pos = player.position
 	inst.position = Vector3(
 		randf_range(-30, 30),           # X (left/right)
@@ -168,16 +170,18 @@ func spawn_obstacle():
 		player_pos.z + spawn_z_distance # Z (ahead)
 	)
 	
-	# Add obstacle to scene
-	obstacles.add_child(inst)
-	#print("Obstacle spawned at: ", inst.position)
+	# Add target to scene
+	targets.add_child(inst)
+	#print("Target spawned at: ", inst.position)
 	
-	# Connect obstacle_destroyed signal to a handler in Main.gd
-	inst.obstacle_destroyed.connect(_on_obstacle_destroyed)
+	targets.add_to_group("Enemy")
+	
+	# Connect target_destroyed signal to a handler in Main.gd
+	inst.target_destroyed.connect(_on_target_destroyed)
 
-# Updates HUD/ScoreCounter on obstacle destroyed
-func _on_obstacle_destroyed():
-	print("Main.gd -> on_obstacle_destroyed() called!")
+# Updates HUD/ScoreCounter on target destroyed
+func _on_target_destroyed():
+	#print("Main.gd -> on_target_destroyed() called!")
 	# Add 1 hit to total score
 	score += 1
 	#print("Hits: +1")
@@ -186,7 +190,7 @@ func _on_obstacle_destroyed():
 
 # Called in _input when ui_accept is pressed
 func show_start_menu():
-	print("Main.gd -> show_start_menu called!")
+	#print("Main.gd -> show_start_menu called!")
 	# Prevent StarMenu opening if already open
 	if menu_is_open: 
 		return 
@@ -203,13 +207,13 @@ func show_start_menu():
 
 # Updates menu_is_closed when StartMenu is closed
 func on_start_menu_closed():
-	print("Main.gd -> on_start_menu_closed() called!")
+	#print("Main.gd -> on_start_menu_closed() called!")
 	# Update menu_is_open to false to allow another pause
 	menu_is_open = false
 
 # Called when score = X
 func game_finished():
-	print("Main.gd -> game_finished() called!")
+	#print("Main.gd -> game_finished() called!")
 	
 	# Play pep-goodgoing.wav
 	voice_sfx.play() 

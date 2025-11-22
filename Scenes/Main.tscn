@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://dv6t735xqxort"]
+[gd_scene load_steps=34 format=3 uid="uid://dv6t735xqxort"]
 
 [ext_resource type="Script" uid="uid://n4mnikfsc3v4" path="res://Scripts/Main.gd" id="1_idj7w"]
 [ext_resource type="Script" uid="uid://b3ymb3vdvhbdu" path="res://Scripts/Player.gd" id="1_r150o"]
@@ -6,20 +6,24 @@
 [ext_resource type="PackedScene" uid="uid://bsaxnv6uo08cq" path="res://Scenes/HUD.tscn" id="2_h1m7h"]
 [ext_resource type="Script" uid="uid://bjoxf672245cw" path="res://Scripts/PlayerCam.gd" id="2_vy5pj"]
 [ext_resource type="PackedScene" uid="uid://dqsuvkurtebk4" path="res://Scenes/StartMenu.tscn" id="3_erwvk"]
-[ext_resource type="PackedScene" uid="uid://b6nocjktlr8bb" path="res://Scenes/Obstacles.tscn" id="3_kln2b"]
-[ext_resource type="Texture2D" uid="uid://yqs20txhmh4w" path="res://Assets/darkgrass.png" id="4_rgh2o"]
+[ext_resource type="PackedScene" uid="uid://b6nocjktlr8bb" path="res://Scenes/Targets.tscn" id="3_kln2b"]
 [ext_resource type="PackedScene" uid="uid://b33d2ju4ric2q" path="res://Scenes/Laser.tscn" id="4_v1gob"]
 [ext_resource type="PackedScene" uid="uid://dol1nc3s525hv" path="res://Scenes/Arwing.tscn" id="5_jw32o"]
 [ext_resource type="Texture2D" uid="uid://dg5jpiraocf7y" path="res://Assets/aim4.png" id="6_vy5pj"]
+[ext_resource type="PackedScene" uid="uid://li7anc15aqm7" path="res://Scenes/ChargedLaser.tscn" id="8_0sclb"]
 [ext_resource type="AudioStream" uid="uid://nhustl4ayj36" path="res://Assets/hyperlaser-1shot-sfx.wav" id="8_bmxlf"]
 [ext_resource type="AudioStream" uid="uid://73ny83ygb146" path="res://Assets/boost-sfx.wav" id="9_4kpch"]
 [ext_resource type="AudioStream" uid="uid://bqtek2h5rrs4m" path="res://Assets/brake-sfx.wav" id="10_grg3l"]
 [ext_resource type="AudioStream" uid="uid://cj1lkkedysb4b" path="res://Assets/barrelroll-sfx-temp.wav" id="11_frkhe"]
 [ext_resource type="AudioStream" uid="uid://bsyddeoc2lsxx" path="res://Assets/starfox64-corneria-remix.wav" id="14_1p5hy"]
+[ext_resource type="AudioStream" uid="uid://b67c3gdcn8bf3" path="res://Assets/starfox64-charge-sfx.wav" id="15_fq0cl"]
+[ext_resource type="Texture2D" uid="uid://b4s8h33w13bmk" path="res://Assets/LeavesOP.png" id="16_0sclb"]
+[ext_resource type="AudioStream" uid="uid://b6qw1yru5cfwe" path="res://Assets/starfox64-lockon-sfx.wav" id="16_hwpts"]
+[ext_resource type="Texture2D" uid="uid://bs2tmpuvaht7e" path="res://Assets/sky3.jpg" id="17_0sclb"]
 [ext_resource type="AudioStream" uid="uid://5kjvloa1kp1c" path="res://Assets/pep-goodgoing.wav" id="17_2w5on"]
 
 [sub_resource type="Environment" id="Environment_rgh2o"]
-ambient_light_energy = 0.6
+ambient_light_energy = 2.0
 
 [sub_resource type="Gradient" id="Gradient_erwvk"]
 offsets = PackedFloat32Array(0, 0.4915254, 1)
@@ -48,22 +52,21 @@ uv1_scale = Vector3(0, 0, 0)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_kln2b"]
 material = SubResource("StandardMaterial3D_pbw6q")
-size = Vector2(200, 300)
+size = Vector2(500, 500)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rgh2o"]
-albedo_texture = ExtResource("4_rgh2o")
-uv1_scale = Vector3(20, 20, 20)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v1gob"]
-albedo_color = Color(0.5019608, 0.8156863, 1, 1)
+albedo_texture = ExtResource("16_0sclb")
 uv1_scale = Vector3(20, 20, 20)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_rgh2o"]
-material = SubResource("StandardMaterial3D_v1gob")
-size = Vector2(200, 20)
+size = Vector2(1300, 500)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sxkr1"]
+albedo_texture = ExtResource("17_0sclb")
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_idj7w")
+spawn_interval = 2.0
 
 [node name="ColorRect" type="ColorRect" parent="."]
 z_index = 1
@@ -82,8 +85,7 @@ color = Color(0, 0, 0, 1)
 environment = SubResource("Environment_rgh2o")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.8660254, -0.43301272, 0.25, 0, 0.49999997, 0.86602545, -0.5, -0.75, 0.4330127, 0, 0, 0)
-light_energy = 1.6
+transform = Transform3D(-0.9396926, -0.29619822, 0.17101009, 0, 0.49999997, 0.86602545, -0.3420202, 0.8137977, -0.46984628, 0, 0, 0)
 shadow_enabled = true
 
 [node name="Gameplay" type="Node3D" parent="."]
@@ -104,6 +106,12 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0
 script = ExtResource("1_r150o")
 laser_scene = ExtResource("4_v1gob")
 barrel_cooldown = 0.01
+charge_time_max = 1.0
+auto_target_range = 200.0
+charged_laser_scene = ExtResource("8_0sclb")
+lock_reticle_scale = 0.25
+lock_view_cone_deg = 45.0
+hover_reticle_modulate = Color(1, 1, 0.8, 0)
 
 [node name="PlayerMesh" parent="Gameplay/Player" instance=ExtResource("5_jw32o")]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
@@ -159,6 +167,14 @@ stream = ExtResource("10_grg3l")
 [node name="BarrelRoll" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
 stream = ExtResource("11_frkhe")
 
+[node name="Charge" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
+stream = ExtResource("15_fq0cl")
+attenuation_model = 3
+
+[node name="LockOn" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
+stream = ExtResource("16_hwpts")
+attenuation_model = 3
+
 [node name="Center" type="MeshInstance3D" parent="Gameplay"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 transparency = 1.0
@@ -166,7 +182,7 @@ cast_shadow = 0
 mesh = SubResource("SphereMesh_50glp")
 skeleton = NodePath("../Player")
 
-[node name="Obstacles" parent="." instance=ExtResource("3_kln2b")]
+[node name="Targets" parent="." instance=ExtResource("3_kln2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
 
 [node name="Ground" type="MeshInstance3D" parent="."]
@@ -175,8 +191,10 @@ mesh = SubResource("PlaneMesh_kln2b")
 surface_material_override/0 = SubResource("StandardMaterial3D_rgh2o")
 
 [node name="Horizon" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 120)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 230.08719, 220.47174)
+cast_shadow = 0
 mesh = SubResource("PlaneMesh_rgh2o")
+surface_material_override/0 = SubResource("StandardMaterial3D_sxkr1")
 
 [node name="Theme" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("14_1p5hy")
