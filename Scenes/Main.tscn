@@ -67,6 +67,11 @@ albedo_texture = ExtResource("17_0sclb")
 [node name="Main" type="Node3D"]
 script = ExtResource("1_idj7w")
 spawn_interval = 2.0
+fov_lerp_speed = 3.0
+recharge_rate = 33.0
+cooldown_after_use = 0.5
+boost_drain_rate = 60.0
+brake_drain_rate = 60.0
 
 [node name="ColorRect" type="ColorRect" parent="."]
 z_index = 1

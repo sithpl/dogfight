@@ -19,7 +19,7 @@ class_name Main extends Node3D
 @onready var ground      : MeshInstance3D    = $Ground                       # Floor mesh
 @onready var horizon     : MeshInstance3D    = $Horizon                      # Distant horizon mesh
 @onready var theme       : AudioStreamPlayer = $Theme                        # Level background music
-@onready var voice_sfx   : AudioStreamPlayer = $VoiceSFX                     # Voice sound effects
+@onready var voice_sfx   : AudioStreamPlayer = $VoiceSFX                     # Voice sound effect player
 
 # --- Preload Nodes ---
 @onready var hud_scene = preload("res://Scenes/HUD.tscn")
@@ -37,6 +37,17 @@ var start_menu                            # Used to instantiate preloaded $Start
 var menu_is_open: bool = false            # Tracks StartMenu status (open = true/close = false)
 var is_mission_finished: bool = false     # Tracks current game status (completed = true, playing = false)
 
+# --- BoostMeter tuning ---
+@export var max_meter: float = 100.0
+@export var recharge_rate: float = 20.0         # units per second when recharging
+@export var cooldown_after_use: float = 0.8     # seconds before recharge begins after use
+@export var boost_drain_rate: float = 40.0      # units per second while boosting
+@export var brake_drain_rate: float = 12.0      # units per second while braking
+
+# --- BoostMeter state ---
+var meter: float = 0.0
+var cooldown_remaining: float = 0.0
+
 # Called once when scene starts
 func _ready():
 	# Ensures StartMenu is hidden
@@ -53,6 +64,20 @@ func _ready():
 	hud = hud_scene.instantiate()
 	# Add HUD window
 	add_child(hud)
+	
+	if hud:
+		hud.set_score(score)  # show current score (defaults to 0 at start)
+	
+	# Initialize the HUD's boost meter
+	if hud and hud.has_node("BoostMeter"):
+		hud.boost_meter.min_value = 0.0
+		hud.boost_meter.max_value = max_meter
+
+	# Initialize meter values
+	meter = max_meter
+	cooldown_remaining = 0.0
+	_update_hud_meter()
+
 	# Call HUD.gd/show_mission_start()
 	hud.show_mission_start()
 	# Hide MissionStart Panel after a 2 seconds
@@ -60,7 +85,7 @@ func _ready():
 	# Call HUD.gd/hide_mission_start()
 	hud.hide_mission_start()
 	# Call HUD.gd/set_score(), set initial score #
-	hud.set_score(+1) 
+	hud.set_score(0) 
 
 	# Play starfox64-corneria-remix.wav
 	theme.play()
@@ -89,6 +114,41 @@ func _process(delta):
 	if score >= 10 and not is_mission_finished:
 		is_mission_finished = true
 		game_finished()
+
+	# Meter logic (drain while held, cooldown, then recharge)
+	var prev_meter = meter
+	var prev_cooldown = cooldown_remaining
+
+	# Drain when boosting/braking (sum if both pressed)
+	if player and player.is_boosting and meter > 0.0:
+		meter = clamp(meter - boost_drain_rate * delta, 0.0, max_meter)
+		cooldown_remaining = cooldown_after_use
+		# if empty, force player to stop boosting
+		if meter <= 0.0:
+			meter = 0.0
+			player.is_boosting = false
+			if player.boost_sfx and player.boost_sfx.is_playing():
+				player.boost_sfx.stop()
+	if player and player.is_braking and meter > 0.0:
+		meter = clamp(meter - brake_drain_rate * delta, 0.0, max_meter)
+		cooldown_remaining = cooldown_after_use
+		if meter <= 0.0:
+			meter = 0.0
+			player.is_braking = false
+			if player.brake_sfx and player.brake_sfx.is_playing():
+				player.brake_sfx.stop()
+
+	# Update cooldown timer
+	if cooldown_remaining > 0.0:
+		cooldown_remaining = max(cooldown_remaining - delta, 0.0)
+	else:
+		# Recharge when not cooling down
+		if meter < max_meter:
+			meter = clamp(meter + recharge_rate * delta, 0.0, max_meter)
+
+	# Update HUD only when values changed (simple throttle)
+	if meter != prev_meter or cooldown_remaining != prev_cooldown:
+		_update_hud_meter()
 
 	# Calculate speed modifier based on player actions
 	var speed_mult := 1.0
@@ -120,7 +180,7 @@ func _process(delta):
 		# Set FOV to 115
 		target_fov = boost_fov
 	# If player presses ui_brake
-	elif player.is_braking:
+	if player.is_braking:
 		# Set FOV to 75
 		target_fov = brake_fov
 
@@ -208,7 +268,7 @@ func show_start_menu():
 # Updates menu_is_closed when StartMenu is closed
 func on_start_menu_closed():
 	#print("Main.gd -> on_start_menu_closed() called!")
-	# Update menu_is_open to false to allow another pause
+	# Update menu_is_open to false to allow another StartMenu to spawn
 	menu_is_open = false
 
 # Called when score = X
@@ -237,3 +297,20 @@ func game_finished():
 	start_menu.pause_label.text = "MISSION COMPLETE" 
 	# Pause Main node
 	get_tree().paused = true 
+
+# Helper: update HUD boost meter display
+func _update_hud_meter():
+	if not hud:
+		return
+	# Prefer to call HUD's handler if exposed
+	if hud.has_method("_on_meter_changed"):
+		hud._on_meter_changed(meter, max_meter, cooldown_remaining)
+	else:
+		# Fallback: set ProgressBar directly if available
+		if hud.has_node("BoostMeterPanel/BoostMeter"):
+			var pb = hud.get_node("BoostMeterPanel/BoostMeter") as ProgressBar
+			if pb:
+				pb.min_value = 0.0
+				pb.max_value = max_meter
+				pb.value = meter
+				pb.modulate.a = 0.7 if cooldown_remaining > 0.0 else 1.0

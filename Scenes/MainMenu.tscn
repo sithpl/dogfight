@@ -59,7 +59,7 @@ text = "QUIT"
 
 [node name="Label" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-text = "v0.5-proto"
+text = "v0.7-proto"
 
 [node name="SelectSFX" type="AudioStreamPlayer" parent="VBoxContainer"]
 stream = ExtResource("3_8saeu")
