@@ -21,6 +21,7 @@ func _process(delta):
 		#print("Laser.gd -> laser despawned!")
 
 # Despawns (free) laser when it hits another target with collision
-func _on_area_entered(_area):
+func _on_area_entered(area):
 	#print("Laser.gd -> _on_area_entered() called!")
-	queue_free()
+	if not area.is_in_group("Laser"):
+		queue_free()

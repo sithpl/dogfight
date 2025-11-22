@@ -1,0 +1,49 @@
+[gd_scene load_steps=8 format=3 uid="uid://b6nocjktlr8bb"]
+
+[ext_resource type="Script" uid="uid://dijqs2mhvd2eo" path="res://Scripts/Targets.gd" id="1_s1st6"]
+[ext_resource type="AudioStream" uid="uid://dmxglb1cx2wrp" path="res://Assets/explosion.wav" id="2_is2jm"]
+
+[sub_resource type="Gradient" id="Gradient_is2jm"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.41525424, 0.66101694, 1)
+colors = PackedColorArray(1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ug3r7"]
+gradient = SubResource("Gradient_is2jm")
+width = 500
+height = 500
+fill = 1
+fill_from = Vector2(0.24725275, 0.75274724)
+fill_to = Vector2(0.04945055, 0.9230769)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e7r6i"]
+albedo_texture = SubResource("GradientTexture2D_ug3r7")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_l5gjk"]
+top_radius = 1.0
+bottom_radius = 1.0
+height = 0.1
+rings = 1
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_c6dju"]
+height = 0.5
+radius = 0.75
+
+[node name="Targets" type="Area3D" groups=["Enemy"]]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)
+script = ExtResource("1_s1st6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.1924881e-08, 1, 0, -1, 1.1924881e-08, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_e7r6i")
+gi_mode = 0
+mesh = SubResource("CylinderMesh_l5gjk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, -6.556708e-08, -1.5, 0, 1.5, -6.556708e-08, 0, 0, 0)
+shape = SubResource("CylinderShape3D_c6dju")
+
+[node name="HitSFX" type="AudioStreamPlayer" parent="CollisionShape3D"]
+stream = ExtResource("2_is2jm")
+volume_db = -10.0
+pitch_scale = 0.5
