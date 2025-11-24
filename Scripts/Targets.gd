@@ -6,7 +6,7 @@ signal target_destroyed # Signal emitted when the target is destroyed (hit by a 
 
 # Called once when scene starts
 func _ready():
-	# Ensure target is in "Enemy" group so Player can find it
+	# Verify target is in "Enemy" group so Player can find it
 	add_to_group("Enemy")
 	# Connect area_entered signal to _on_area_entered handler
 	connect("area_entered", Callable(self, "_on_area_entered"))

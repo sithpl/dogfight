@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://b33d2ju4ric2q"]
+[gd_scene load_steps=7 format=3 uid="uid://b33d2ju4ric2q"]
 
 [ext_resource type="Script" uid="uid://drw1mvnjxmxk8" path="res://Scripts/Laser.gd" id="1_soxky"]
 
@@ -11,29 +11,29 @@ height = 3.0
 shading_mode = 0
 albedo_color = Color(0, 1, 0.8901961, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_soxky"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_cfk2d"]
+top_radius = 0.0
+height = 1.5
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cfk2d"]
 albedo_color = Color(0.561, 1.164, 1.037, 1)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_cfk2d"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7lyxe"]
-albedo_color = Color(0.561, 1.164, 1.037, 1)
-
 [node name="Lasers" type="Area3D"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 0.75, 0, 0, 0)
 script = ExtResource("1_soxky")
 
 [node name="Laser1" type="MeshInstance3D" parent="."]
-transform = Transform3D(-2, 3.019916e-07, -1.3200472e-14, 0, -8.742278e-08, -2, -3.019916e-07, -2, 8.742278e-08, 0.5, 0, 0)
+transform = Transform3D(-2, 3.019916e-07, -1.3200472e-14, 0, -8.742278e-08, -2, -3.019916e-07, -2, 8.742278e-08, 0.4, 0, 0)
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_soxky")
 surface_material_override/0 = SubResource("StandardMaterial3D_soxky")
 
 [node name="Head" type="MeshInstance3D" parent="Laser1"]
-transform = Transform3D(0.3, 0, 0, 0, 0.21213204, -0.21213204, 0, 0.21213204, 0.21213204, 0, 1.5, 0)
+transform = Transform3D(-1.8542325e-08, -0.0052566524, 0.29995394, -1.3438368e-08, 0.29995394, 0.0052566524, -0.29999998, -1.3111399e-08, -1.8774944e-08, -0.0034993887, 1.721896, 0.0004648391)
 cast_shadow = 0
-mesh = SubResource("BoxMesh_soxky")
+mesh = SubResource("CylinderMesh_cfk2d")
 surface_material_override/0 = SubResource("StandardMaterial3D_cfk2d")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -41,17 +41,16 @@ transform = Transform3D(2, 0, 0, 0, -8.742278e-08, -2, 0, 2, -8.742278e-08, 0.5,
 shape = SubResource("CylinderShape3D_cfk2d")
 
 [node name="Laser2" type="MeshInstance3D" parent="."]
-transform = Transform3D(-2, 3.019916e-07, -1.3200472e-14, 0, -8.742278e-08, -2, -3.019916e-07, -2, 8.742278e-08, -0.5, 0, 0)
+transform = Transform3D(-2, 3.019916e-07, -1.3200472e-14, 0, -8.742278e-08, -2, -3.019916e-07, -2, 8.742278e-08, -0.4, 0, 0)
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_soxky")
 surface_material_override/0 = SubResource("StandardMaterial3D_soxky")
 
-[node name="Head2" type="MeshInstance3D" parent="Laser2"]
-transform = Transform3D(0.3, 0, -7.1054274e-15, 0, 0.21213204, -0.21213204, 0, 0.21213204, 0.21213204, 0, 1.5, 0)
+[node name="Head" type="MeshInstance3D" parent="Laser2"]
+transform = Transform3D(-1.8542325e-08, -0.0052566524, 0.29995394, -1.3438368e-08, 0.29995394, 0.0052566524, -0.29999998, -1.3111399e-08, -1.8774944e-08, -0.0034994185, 1.721896, 0.0004648391)
 cast_shadow = 0
-mesh = SubResource("BoxMesh_soxky")
-skeleton = NodePath("../../Laser1")
-surface_material_override/0 = SubResource("StandardMaterial3D_7lyxe")
+mesh = SubResource("CylinderMesh_cfk2d")
+surface_material_override/0 = SubResource("StandardMaterial3D_cfk2d")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
 transform = Transform3D(2, 0, 0, 0, -8.742278e-08, -2, 0, 2, -8.742278e-08, -0.5, 0, -1.5)

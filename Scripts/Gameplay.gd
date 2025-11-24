@@ -20,7 +20,7 @@ func _ready():
 	pass
 
 # Called every frame
-func _process(delta):
+func _process(delta: float):
 	# delta = time since last frame (in seconds)
 	
 	# Handle keyboard/controller movement input

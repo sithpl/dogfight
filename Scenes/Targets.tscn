@@ -1,7 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://b6nocjktlr8bb"]
+[gd_scene load_steps=8 format=3 uid="uid://b6nocjktlr8ba"]
 
-[ext_resource type="Script" uid="uid://dijqs2mhvd2eo" path="res://Scripts/Targets.gd" id="1_s1st6"]
-[ext_resource type="AudioStream" uid="uid://dmxglb1cx2wrp" path="res://Assets/explosion.wav" id="2_is2jm"]
+[ext_resource type="Script" uid="uid://cyrdb0jbls3x4" path="res://Scripts/Targets.gd" id="1_fk76y"]
+[ext_resource type="AudioStream" uid="uid://dmxglb1cx2wrp" path="res://Assets/SFX/explosion.wav" id="2_is2jm"]
 
 [sub_resource type="Gradient" id="Gradient_is2jm"]
 interpolation_mode = 1
@@ -29,9 +29,9 @@ rings = 1
 height = 0.5
 radius = 0.75
 
-[node name="Targets" type="Area3D" groups=["Enemy"]]
+[node name="Targets" type="Area3D"]
 transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)
-script = ExtResource("1_s1st6")
+script = ExtResource("1_fk76y")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1.1924881e-08, 1, 0, -1, 1.1924881e-08, 0, 0, 0)

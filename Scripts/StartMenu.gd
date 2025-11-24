@@ -9,9 +9,12 @@ class_name StartMenu extends Control
 
 # Called once when scene starts
 func _ready():
+	# Update Paused text
 	pause_label.text = "MISSION PAUSED"
+	# Grab focus so [Restart] is highlighted first
 	restart_button.grab_focus()
 	#get_tree().paused = true
+	# Allow StartMenu scene to function while level scene is paused
 	set_process_mode(PROCESS_MODE_WHEN_PAUSED)
 
 # Checks for specific inputs

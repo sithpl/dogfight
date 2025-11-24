@@ -2,72 +2,72 @@
 class_name Player extends Node3D
 
 # --- Gameplay settings ---
-@export var brake_mult           : float = 0.5                 # Speed multiplier when braking
-@export var rotation_smoothness  : float = 8.0                 # How smoothly the ship rotates/tilts (higher = snappier)
-@export var max_bank_angle       : float = 45.0                # Maximum tilt/roll (degrees) under normal movement
-@export var max_pitch_angle      : float = 45.0                # Maximum up/down tilt (degrees)
-@export var hard_bank_angle      : float = 90.0                # Angle (degrees) to roll when hard banking (Q/E or triggers)
-@export var hard_bank_smoothness : float = 10.0                # How quickly the ship snaps into/out of hard bank
-@export var max_yaw_angle        : float = 30.0                # Maximum left/right tilt (degrees)
-@export var hard_yaw_angle       : float = 60.0                # Sharper turn angle when hard banking
-@export var follow_speed         : float = 8.0                 # How snappy Player follows Center
-@export var follow_offset        : Vector3 = Vector3(0, 0, 5)  # How far back PlayerMesh stays
-@export var reticle_x_max        : float = 16                  # Max reticle offset X (left/right)
-@export var reticle_y_max        : float = 9                   # Max reticle offset Y (up/down)
-@export var reticle_sensitivity  : float = 1.0                 # How fast the reticle snaps across the screen when aiming
-@export var laser_scene          : PackedScene                 # Scene for the laser shot (so it can be externally edited)
+@export var brake_mult           : float = 0.5                # Speed multiplier when braking
+@export var rotation_smoothness  : float = 8.0                # How smoothly the ship rotates/tilts (higher = snappier)
+@export var max_bank_angle       : float = 45.0               # Maximum tilt/roll (degrees) under normal movement
+@export var max_pitch_angle      : float = 45.0               # Maximum up/down tilt (degrees)
+@export var hard_bank_angle      : float = 90.0               # Angle (degrees) to roll when hard banking (Q/E or triggers)
+@export var hard_bank_smoothness : float = 10.0               # How quickly the ship snaps into/out of hard bank
+@export var max_yaw_angle        : float = 30.0               # Maximum left/right tilt (degrees)
+@export var hard_yaw_angle       : float = 60.0               # Sharper turn angle when hard banking
+@export var follow_speed         : float = 8.0                # How snappy Player follows Center
+@export var follow_offset        : Vector3 = Vector3(0, 0, 5) # How far back PlayerMesh stays
+@export var reticle_x_max        : float = 16                 # Max reticle offset X (left/right)
+@export var reticle_y_max        : float = 9                  # Max reticle offset Y (up/down)
+@export var reticle_sensitivity  : float = 1.0                # How fast the reticle snaps across the screen when aiming
+@export var laser_scene          : PackedScene                # Scene for the laser shot (so it can be externally edited)
 
 # --- Node settings ---
-@onready var mesh            : Node3D              = $PlayerMesh                 # Reference to the Player's visible mesh Node3D
-@onready var reticle1        : Sprite3D            = $Reticle1                   # Reticle sprite closer to the player
-@onready var reticle2        : Sprite3D            = $Reticle2                   # Reticle sprite farther away (aim)
-@onready var center          : Node3D              = $"../Center"                # Reference to Center node used for following
-@onready var boost_sfx       : AudioStreamPlayer3D = $SFX/Boost                  # Boost sound effect player
-@onready var brake_sfx       : AudioStreamPlayer3D = $SFX/Brake                  # Brake sound effect player
-@onready var laser_sfx       : AudioStreamPlayer3D = $SFX/Laser                  # Laser shot sound effect player
-@onready var barrelroll_sfx  : AudioStreamPlayer3D = $SFX/BarrelRoll             # Barrel roll sound effect player
-@onready var charge_sfx      : AudioStreamPlayer3D = $SFX/Charge                 # Charge sound effect player
-@onready var lockon_sfx      : AudioStreamPlayer3D = $SFX/LockOn                 # Lock-on sound effect player
-@onready var boost_particles : CPUParticles3D      = $PlayerMesh/BoostParticles  # Boost particles node
-@onready var boost_light     : OmniLight3D         = $PlayerMesh/BoostLight      # Boost light node
+@onready var mesh            : Node3D              = $PlayerMesh                # Reference to the Player's visible mesh Node3D
+@onready var reticle1        : Sprite3D            = $Reticle1                  # Reticle sprite closer to the player
+@onready var reticle2        : Sprite3D            = $Reticle2                  # Reticle sprite farther away (aim)
+@onready var center          : Node3D              = $"../Center"               # Reference to Center node used for following
+@onready var boost_sfx       : AudioStreamPlayer3D = $SFX/Boost                 # Boost sound effect player
+@onready var brake_sfx       : AudioStreamPlayer3D = $SFX/Brake                 # Brake sound effect player
+@onready var laser_sfx       : AudioStreamPlayer3D = $SFX/Laser                 # Laser shot sound effect player
+@onready var barrelroll_sfx  : AudioStreamPlayer3D = $SFX/BarrelRoll            # Barrel roll sound effect player
+@onready var charge_sfx      : AudioStreamPlayer3D = $SFX/Charge                # Charge sound effect player
+@onready var lockon_sfx      : AudioStreamPlayer3D = $SFX/LockOn                # Lock-on sound effect player
+@onready var boost_particles : CPUParticles3D      = $PlayerMesh/BoostParticles # Boost particles node
+@onready var boost_light     : OmniLight3D         = $PlayerMesh/BoostLight     # Boost light node
 
 # --- Game state variables ---
-var is_boosting       : bool   = false          # True if currently boosting
-var was_boosting      : bool   = false          # True if was boosting
-var is_braking        : bool   = false          # True if currently braking
-var was_braking       : bool   = false          # True if was boosting
-var prev_position = Vector3.ZERO                # Used for velocity if needed
-var displayed_rotation: Vector3 = Vector3.ZERO  # Smooth rotation for PlayerMesh
-var reticle_pos: Vector2 = Vector2.ZERO         # Used to track reticle position
+var is_boosting        : bool    = false        # True if currently boosting
+var was_boosting       : bool    = false        # True if was boosting
+var is_braking         : bool    = false        # True if currently braking
+var was_braking        : bool    = false        # True if was boosting
+var prev_position      : Vector3 = Vector3.ZERO # Used for velocity if needed
+var displayed_rotation : Vector3 = Vector3.ZERO # Smooth rotation for PlayerMesh
+var reticle_pos        : Vector2 = Vector2.ZERO # Used to track reticle position
 
 # --- Barrel Roll logic ---
 
 # Barrel roll state
 @export var barrel_duration: float = 0.3        # How long barrel roll lasts (seconds)
 
-var is_doing_barrel_roll: bool = false          # True if currently spinning (barrel roll)
-var barrel_direction: int = 0                   # +1 (right) or -1 (left), or 0 if not rolling
-var barrel_elapsed: float = 0.0                 # How long this roll has run so far
+var is_doing_barrel_roll : bool = false # True if currently spinning (barrel roll)
+var barrel_direction     : int  = 0     # +1 (right) or -1 (left), or 0 if not rolling
+var barrel_elapsed       : float = 0.0  # How long this roll has run so far
 
 # Barrel roll cooldown
-@export var barrel_cooldown: float = 0.7        # How long player must wait after prevous barrel roll (seconds)
+@export var barrel_cooldown: float = 0.01       # How long player must wait after prevous barrel roll (seconds)
 
 var barrel_cooldown_timer: float = 0.0          # If >0, rolling is locked out
 
 # Double-tap detection for barrel roll
-var tap_time_window  : float  = 0.25            # Max seconds between taps to count as double tap
-var left_tap_timer   : float  = 0.0             # Used to measure left double taps
-var left_tap_count   : int    = 0               # How many left taps so far
-var right_tap_timer  : float  = 0.0             # Used to measure right double taps
-var right_tap_count  : int    = 0               # How many right taps so far
+var tap_time_window  : float  = 0.25 # Max seconds between taps to count as double tap
+var left_tap_timer   : float  = 0.0  # Used to measure left double taps
+var left_tap_count   : int    = 0    # How many left taps so far
+var right_tap_timer  : float  = 0.0  # Used to measure right double taps
+var right_tap_count  : int    = 0    # How many right taps so far
 
 # --- Charged Shot logic ---
-@export var charge_time_max       : float = 1.5    # Time to reach full charge (secs)
-@export var charge_min_threshold  : float = 0.5    # Minimum time to trigger "charged" effect
-@export var reticle_pulse_speed   : float = 10.0   # How fast $Reticle2 pulses when fully charged
-@export var reticle_pulse_scale   : float = 0.95   # Max extra scale applied during "charged" effect
-@export var auto_target_range     : float = 30.0   # Search radius for nearby targets
-@export var charged_laser_scene   : PackedScene    # Scene for the charged laser shot (so it can be externally edited)
+@export var charge_time_max      : float = 1.0   # Time to reach full charge (secs)
+@export var charge_min_threshold : float = 0.5   # Minimum time to trigger "charged" effect
+@export var reticle_pulse_speed  : float = 10.0  # How fast $Reticle2 pulses when fully charged
+@export var reticle_pulse_scale  : float = 0.95  # Max extra scale applied during "charged" effect
+@export var auto_target_range    : float = 200.0 # Search radius for nearby targets
+@export var charged_laser_scene  : PackedScene   # Scene for the charged laser shot (so it can be externally edited)
 
 var is_charging                : bool    = false                 # Is the player currently holding charge?
 var charge_timer               : float   = 0.0                   # Total charge time while holding
@@ -78,15 +78,15 @@ var _reticle2_base_scale       : Vector3 = Vector3.ONE           # Saved base sc
 var _reticle_pulse_timer       : float   = 0.0                   # Timer used to drive reticle pulse animation
 
 # --- Lock On logic ---
-@export var lock_reticle_scale      : float = 1.0                  # Tuning for lock reticle size
-@export var lock_view_distance      : float = 100.0                # How far we can "see" to lock (scope distance)
-@export var lock_view_cone_deg      : float = 6.0                  # Cone half-angle in degrees (smaller = tighter scope)
+@export var lock_reticle_scale      : float = 0.25                 # Tuning for lock reticle size
+@export var lock_view_distance      : float = 150.0                # How far player can "see" to lock (scope distance)
+@export var lock_view_cone_deg      : float = 60.0                 # Cone half-angle in degrees (smaller = tighter scope)
 @export var lock_min_distance       : float = 8.0                  # Don't lock targets closer than this to player
 @export var lock_require_los        : bool  = false                # Require LOS to target
 @export var hover_reticle_scale     : float = 0.9                  # Hover reticle scale for preview target
-@export var hover_reticle_modulate  : Color = Color("ffffcce6")  # Hover reticle tint color
+@export var hover_reticle_modulate  : Color = Color("ffffff00")  # Hover reticle tint color
 
-var _lock_target        : Node     = null       # Node that we locked on to (set when full-charged)
+var _lock_target        : Node     = null       # Node that player locked on to (set when full-charged)
 var _lock_reticle       : Sprite3D = null       # runtime-created red reticle that sits on top of the locked target
 var _hover_target       : Node     = null       # Node currently hovered by reticle2 (before lock)
 var _hover_reticle      : Sprite3D = null       # Hover indicator Sprite3D
@@ -105,7 +105,7 @@ func _ready():
 		_reticle1_default_modulate = reticle1.modulate
 
 # Called every frame
-func _process(delta):
+func _process(delta: float):
 	# delta = time since last frame (in seconds)
 
 	# Animate particles based on boost/brake
@@ -215,9 +215,9 @@ func _process(delta):
 		_reticles_charged_state = false
 		_clear_lock()
 		_clear_hover()
-		# reset the "played this charge" flag
+		# Reset the _charge_sfx_played flag
 		_charge_sfx_played = false
-		# ensure previous sound stopped (optional)
+		# Verify previous sound stopped
 		if charge_sfx and charge_sfx.is_playing():
 			charge_sfx.stop()
 
@@ -231,7 +231,7 @@ func _process(delta):
 				charge_sfx.play()
 			_charge_sfx_played = true
 
-		# If we already have a lock, allow "pull away" to cancel it
+		# If player already has a lock, allow "pull away" to cancel it
 		if _lock_target and is_instance_valid(_lock_target):
 			var eye = mesh.global_transform.origin
 			var view_dir = (reticle2.global_transform.origin - eye)
@@ -253,9 +253,9 @@ func _process(delta):
 			_lock_target = _hover_target
 			_clear_hover()
 			_create_lock_reticle()
-			# revert on-screen reticle to defaults immediately when lock is acquired
+			# Revert on-screen reticle to defaults immediately when lock is acquired
 			_reset_reticles()
-			# play lock sound only if we're actually in charged state
+			# Play lock sound only if actually in charged state
 			if _reticles_charged_state:
 				_play_lockon_sfx()
 
@@ -271,14 +271,14 @@ func _process(delta):
 			_reticles_charged_state = true
 			if charge_sfx and charge_sfx.is_playing():
 				charge_sfx.stop()
-			# convert current hover to lock if present
+			# Convert current hover to lock if present
 			if _hover_target and is_instance_valid(_hover_target):
 				_lock_target = _hover_target
 				_clear_hover()
 				_create_lock_reticle()
-				# revert on-screen reticle to defaults immediately when lock is acquired
+				# Revert on-screen reticle to defaults immediately when lock is acquired
 				_reset_reticles()
-				# play lock sound only if we're actually in charged state
+				# Play lock sound only if actually in charged state
 				if _reticles_charged_state:
 					_play_lockon_sfx()
 
@@ -459,7 +459,7 @@ func fire_charged_laser():
 		if direction.length() > 0.001:
 			world_direction = direction.normalized()
 
-	# Ensure projectile is oriented toward the chosen world direction (for visuals)
+	# Verify projectile is oriented toward the chosen world direction
 	if world_direction.length() > 0.001:
 		laser.look_at(spawn_pos + world_direction, Vector3.UP)
 
@@ -497,7 +497,7 @@ func _clear_lock():
 		_lock_reticle = null 
 		_reticle_pulse_timer = 0.0
 
-	# If we broke the lock while still holding a charge at full, re-show charged visuals.
+	# If the lock-on is broken while still holding full charge, re-show charged visuals
 	if is_charging and _reticles_charged_state:
 		_set_reticles_charging()
 	else:
@@ -561,14 +561,14 @@ func _update_hover_target():
 	var best: Node3D = null
 	var best_score: float = -INF
 	for e_raw in enemies:
-		# guard: nodes coming from group may not be Node3D or may be invalid
+		# Nodes coming from group may not be Node3D or may be invalid
 		if not is_instance_valid(e_raw):
 			continue
 		if not (e_raw is Node3D):
 			continue
 		var e : Node3D = e_raw
 
-		# skip very-close enemies (we don't want to hover over them)
+		# Skip very-close enemies
 		var dist_to_eye = e.global_transform.origin.distance_to(eye)
 		if dist_to_eye < lock_min_distance:
 			continue
@@ -594,17 +594,17 @@ func _update_hover_target():
 			var hit = space.intersect_ray(params)
 			if hit and hit.has("collider"):
 				var collider = hit["collider"]
-				# if collider is not e and not a child of e, then occluded
+				# If collider is not e and not a child of e, then occluded
 				if not _is_node_or_ancestor(collider, e):
 					continue
 
-		# scoring: prefer higher cos_angle (closer to center) and slightly prefer nearer ones
+		# Prefer higher cos_angle (closer to center) and slightly prefer nearer ones
 		var score = cos_angle - (dist_along * 0.0005)
 		if score > best_score:
 			best_score = score
 			best = e
 
-	# if we found a best candidate, create the hover indicator
+	# If best candidate is found, create hover indicator
 	if best:
 		# debug print to verify selection during testing (comment out later)
 		#print("DEBUG: hover candidate:", best, "score=", best_score)
@@ -681,7 +681,8 @@ func start_barrel_roll(direction: int):
 func _play_lockon_sfx(): 
 	#print("Player.gd -> _play_lockon_sfx() called!")
 	if not lockon_sfx: 
-		return # restart the one-shot so we always hear it when a new lock is acquired 
+		# Restart the one-shot so lockon_sfx is always heard when a new lock is acquired 
+		return 
 	if lockon_sfx.is_playing(): 
 		lockon_sfx.stop() 
 		lockon_sfx.play()

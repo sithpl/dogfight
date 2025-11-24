@@ -1,4 +1,19 @@
 # Godot 4+ specific ignores
+
+# Top level
 .godot/
+
+# No idea
 /android/
-/web
+
+# Github repo
+/remote
+dogfight/
+
+# Web build of project
+/web/
+*.png
+
+# Local vids of project at various points
+/videologs/
+*.mp4

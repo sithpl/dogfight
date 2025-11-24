@@ -2,55 +2,56 @@
 class_name Main extends Node3D
 
 # --- Gameplay settings ---
-@export var base_scroll_speed   : float = 15.0    # How fast the world scrolls by default (units/sec)
-@export var boost_mult          : float = 1.5     # Multiplies base_scroll_speed when boosting
-@export var brake_mult          : float = 0.5     # Multiplies base_scroll_speed when braking
-@export var spawn_interval      : float = 1.5     # Seconds between spawns of targets
-@export var default_fov         : float = 90.0    # Camera FOV by default
-@export var boost_fov           : float = 115.0   # Camera FOV when boosting (speed effect)
-@export var brake_fov           : float = 75.0    # Camera FOV when braking (tunnel vision effect)
-@export var fov_lerp_speed      : float = 6.0     # How quickly the camera FOV transitions
+@export var base_scroll_speed : float = 15.0  # How fast the world scrolls by default (units/sec)
+@export var boost_mult        : float = 1.5   # Multiplies base_scroll_speed when boosting
+@export var brake_mult        : float = 0.5   # Multiplies base_scroll_speed when braking
+@export var spawn_interval    : float = 2.0   # Seconds between spawns of targets
+@export var default_fov       : float = 90.0  # Camera FOV by default
+@export var boost_fov         : float = 115.0 # Camera FOV when boosting (speed effect)
+@export var brake_fov         : float = 75.0  # Camera FOV when braking (tunnel vision effect)
+@export var fov_lerp_speed    : float = 3.0   # How quickly the camera FOV transitions
 
 # --- Node settings ---
-@onready var fade_effect : ColorRect         = $ColorRect                    # ColorRect used for fade effect (set at Z Index 1)
-@onready var player      : CharacterBody3D   = $Gameplay/Player              # Player node
-@onready var camera      : Camera3D          = $Gameplay/Bounds/PlayerCam    # Main camera (controls view & FOV)
-@onready var targets     : Node3D            = $Targets                      # Targets node
-@onready var ground      : MeshInstance3D    = $Ground                       # Floor mesh
-@onready var horizon     : MeshInstance3D    = $Horizon                      # Distant horizon mesh
-@onready var theme       : AudioStreamPlayer = $Theme                        # Level background music
-@onready var voice_sfx   : AudioStreamPlayer = $VoiceSFX                     # Voice sound effect player
+@onready var fade_effect : ColorRect         = $FadeEffect                # ColorRect used for fade effect (set at Z Index 1)
+@onready var player      : CharacterBody3D   = $Gameplay/Player           # Player node
+@onready var camera      : Camera3D          = $Gameplay/Bounds/PlayerCam # Main camera (controls view & FOV)
+@onready var targets     : Node3D            = $Level/Targets             # Targets node
+@onready var ground      : MeshInstance3D    = $Level/Ground              # Floor mesh
+@onready var horizon     : MeshInstance3D    = $Level/Horizon             # Distant horizon mesh
+@onready var theme       : AudioStreamPlayer = $Level/Theme               # Level background music
+@onready var voice_sfx   : AudioStreamPlayer = $Level/VoiceSFX            # Voice sound effect player
 
 # --- Preload Nodes ---
-@onready var hud_scene = preload("res://Scenes/HUD.tscn")
+@onready var hud_scene        = preload("res://Scenes/HUD.tscn")
 @onready var start_menu_scene = preload("res://Scenes/StartMenu.tscn")
 
 # --- Constants ---
 const spawn_z_distance : float = 100.0    # How far ahead to spawn targets (Z+)
 
 # --- Game state variables ---
-var scroll_speed     : float = 20.0       # Current scroll speed (can be boosted/braked)
-var spawn_timer      : float = 0.0        # Time left until next target spawn
-var hud                                   # Used to instantiate preloaded $HUD scene (hud_scene)
-var score : int = 0                       # Score total
-var start_menu                            # Used to instantiate preloaded $StartMenu scene (start_menu_scene)
-var menu_is_open: bool = false            # Tracks StartMenu status (open = true/close = false)
-var is_mission_finished: bool = false     # Tracks current game status (completed = true, playing = false)
+var scroll_speed        : float = 20.0 # Current scroll speed (can be boosted/braked)
+var spawn_timer         : float = 0.0  # Time left until next target spawn
+var hud                                # Used to instantiate preloaded $HUD scene (hud_scene)
+var score               : int = 0      # Score total
+var start_menu                         # Used to instantiate preloaded $StartMenu scene (start_menu_scene)
+var menu_is_open        : bool = false # Tracks StartMenu status (open = true/close = false)
+var is_mission_finished : bool = false # Tracks current game status (completed = true, playing = false)
+var score_goal_1        : bool = false # Tracks score for voice line prompt
 
 # --- BoostMeter tuning ---
-@export var max_meter: float = 100.0
-@export var recharge_rate: float = 20.0         # units per second when recharging
-@export var cooldown_after_use: float = 0.8     # seconds before recharge begins after use
-@export var boost_drain_rate: float = 40.0      # units per second while boosting
-@export var brake_drain_rate: float = 12.0      # units per second while braking
+@export var max_meter          : float = 100.0 # Maximum available units to consume for boost/brake
+@export var recharge_rate      : float = 33.0  # Unit rate (per sec) at which BoostMeter recharges
+@export var cooldown_after_use : float = 0.5   # Time required before BoostMeter can be used again (secs)
+@export var boost_drain_rate   : float = 60.0  # Units consumed (per sec) while boosting
+@export var brake_drain_rate   : float = 60.0  # Units consumed (per sec)while braking
 
 # --- BoostMeter state ---
-var meter: float = 0.0
-var cooldown_remaining: float = 0.0
+var meter              : float = 0.0 # Initialize BoostMeter amount
+var cooldown_remaining : float = 0.0 # Initialize BoostMeter cooldown
 
 # Called once when scene starts
 func _ready():
-	# Ensures StartMenu is hidden
+	# Verify StartMenu is hidden
 	$StartMenu.visible = false
 
 	# Set fade_effect (ColorRect) to fully visible and solid black
@@ -78,8 +79,8 @@ func _ready():
 	cooldown_remaining = 0.0
 	_update_hud_meter()
 
-	# Call HUD.gd/show_mission_start()
-	hud.show_mission_start()
+	# Call HUD.gd/show_mission_start(header, start_text)
+	hud.show_mission_start("Mission Start", "Test the Arwing and destroy 30 targets!")
 	# Hide MissionStart Panel after a 2 seconds
 	await get_tree().create_timer(2.0).timeout
 	# Call HUD.gd/hide_mission_start()
@@ -92,6 +93,16 @@ func _ready():
 	# "Corneria" by NoteBlock
 	# Barrel Roll: An Electronic Tribute to Star Fox 64
 	# https://www.youtube.com/watch?v=zZF0_xJ3bPA
+
+	# Transmission test
+	# ROB64 welcome
+	schedule_transmission(3.0, 1)
+	# ROB64 basics
+	schedule_transmission(5.0, 2)
+	# Slippy hold A
+	schedule_transmission(15.0, 3)
+	# Peppy barrel roll
+	schedule_transmission(20.0, 4)
 
 # Checks for specific inputs
 func _input(event):
@@ -110,8 +121,17 @@ func _process(delta):
 	# delta = time since last frame (in seconds)
 	#print("menu_is_open: ",menu_is_open)
 
+	if score == 15 and not score_goal_1:
+		score_goal_1 = true
+		# ROB64 good job
+		_incoming_transmission(8)
+		
+		# Katt and Falco banter
+		#_incoming_transmission(5)
+		#_incoming_transmission(6)
+
 	# When score = X, end the game
-	if score >= 10 and not is_mission_finished:
+	if score >= 30 and not is_mission_finished:
 		is_mission_finished = true
 		game_finished()
 
@@ -205,12 +225,12 @@ func _process(delta):
 				$Gameplay/Player._clear_lock()
 			#print("Main.gd -> target.queue_free() called")
 			# Subtract 1 hit from total score
-			score -= 1
+			# score -= 1
 			#print("Hits: -1")
 			# Call set_score in HUD.gd
-			hud.set_score(score)
+			#hud.set_score(score)
 
-	# --- Spawn targets at intervals ---
+	# Spawn targets at intervals
 	spawn_timer -= delta
 	if spawn_timer <= 0.0:
 		spawn_target()
@@ -226,7 +246,7 @@ func spawn_target():
 	var player_pos = player.position
 	inst.position = Vector3(
 		randf_range(-30, 30),           # X (left/right)
-		randf_range(-3, 6),             # Y (up/down)
+		randf_range(0, 10),             # Y (up/down)
 		player_pos.z + spawn_z_distance # Z (ahead)
 	)
 	
@@ -274,11 +294,10 @@ func on_start_menu_closed():
 # Called when score = X
 func game_finished():
 	#print("Main.gd -> game_finished() called!")
-	
-	# Play pep-goodgoing.wav
-	voice_sfx.play() 
-	# Wait until audio ends
-	await voice_sfx.finished 
+
+	# Peppy skills improved
+	_incoming_transmission(9)
+	await get_tree().create_timer(6.0).timeout
 
 	# Create tween in current node
 	var tween = get_tree().create_tween() 
@@ -298,7 +317,7 @@ func game_finished():
 	# Pause Main node
 	get_tree().paused = true 
 
-# Helper: update HUD boost meter display
+# Update HUD boost meter display
 func _update_hud_meter():
 	if not hud:
 		return
@@ -313,4 +332,84 @@ func _update_hud_meter():
 				pb.min_value = 0.0
 				pb.max_value = max_meter
 				pb.value = meter
-				pb.modulate.a = 0.7 if cooldown_remaining > 0.0 else 1.0
+				#pb.modulate.a = 0.7 if cooldown_remaining > 0.0 else 1.0
+
+# Find transmission and play it
+func _incoming_transmission(message: int):
+	if message == 1:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_name = "ROB64"
+		trans.char_text = "WELCOME TO TRAINING MODE."
+		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-welcome.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 2:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_name = "ROB64"
+		trans.char_text = "LET'S PRACTICE THE BASICS."
+		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-basics.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 3:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-slippy-portrait.png")
+		trans.char_name = "SLIPPY"
+		trans.char_text = "Hold A to charge your laser!"
+		trans.char_voice = preload("res://Assets/Voice/sf64-slip-chargelaser.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 4:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-peppy-portrait.png")
+		trans.char_name = "PEPPY"
+		trans.char_text = "To barrel roll, \npress Z (LB/Q) or R (RB/E) twice!"
+		trans.char_voice = preload("res://Assets/Voice/sf64-pep-roll2.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 5:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-katt-portrait.png")
+		trans.char_name = "KATT"
+		trans.char_text = "Beautiful! I could kiss you for that!"
+		trans.char_voice = preload("res://Assets/Voice/sf64-katt-kiss.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 6:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-falco-portrait.png")
+		trans.char_name = "FALCO"
+		trans.char_text = "I'll pass..."
+		trans.char_voice = preload("res://Assets/Voice/sf64-fal-pass.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 7:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-peppy-portrait.png")
+		trans.char_name = "PEPPY"
+		trans.char_text = "Your skills have improved, Fox!"
+		trans.char_voice = preload("res://Assets/Voice/sf64-pep-improved.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 8:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_name = "ROB64"
+		trans.char_text = "GOOD JOB."
+		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-goodjob.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+	if message == 9:
+		var trans = Transmission.new()
+		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_name = "ROB64"
+		trans.char_text = "THIS IS ROB64. KEEP UP THE GOOD WORK."
+		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-goodwork.wav")
+		trans.duration = 4.0
+		hud.play_transmission(trans)
+
+# Provide scene timer and transmission to play
+func schedule_transmission(delay: float, message: int) -> void:
+	await get_tree().create_timer(delay).timeout
+	_incoming_transmission(message)
