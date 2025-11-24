@@ -2,14 +2,14 @@
 class_name PlayerCam extends Camera3D
 
 # --- Gameplay settings ---
-@export var deadzone_size  : Vector2 = Vector2(7, 3.5)  # Horizontal/vertical area around the player where the camera won't move
+@export var deadzone_size  : Vector2 = Vector2(7, 3.5)  # X/Y area around the player where the camera won't move
 @export var follow_speed   : float   = 6.0              # How quickly the camera tracks the player (higher = faster)
 
 # --- Node settings ---
 @onready var player = get_node("../../Player")  # Reference to the Player node (used for tracking)
 
 # Called every frame (to update camera position)
-func _process(delta):
+func _process(delta: float):
 	# delta = time since last frame (in seconds)
 
 	# Current Player position in world space

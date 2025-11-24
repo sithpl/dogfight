@@ -1,16 +1,112 @@
-[gd_scene load_steps=6 format=3 uid="uid://bjh1ua15fd23m"]
+[gd_scene load_steps=17 format=3 uid="uid://bjh1ua15fd23m"]
 
 [ext_resource type="Script" uid="uid://bgu2wdlrww2dm" path="res://Scripts/MainMenu.gd" id="1_853f1"]
 [ext_resource type="Texture2D" uid="uid://3w1mvfoeq60o" path="res://Assets/sf64-bg.png" id="2_8saeu"]
-[ext_resource type="AudioStream" uid="uid://dxxjebdcilp44" path="res://Assets/menuselect-sfx.wav" id="3_8saeu"]
-[ext_resource type="AudioStream" uid="uid://dk7jw54bgtiru" path="res://Assets/goodluck-sfx.wav" id="4_df05h"]
-[ext_resource type="AudioStream" uid="uid://r3emd3qieapu" path="res://Assets/starfox64-opentheme-remix.wav" id="5_8um5k"]
+[ext_resource type="PackedScene" uid="uid://dol1nc3s525hv" path="res://Scenes/Arwing.tscn" id="2_8um5k"]
+[ext_resource type="Texture2D" uid="uid://5flt1xajmc67" path="res://Assets/Textures/space-wallpaper.jpg" id="2_xim88"]
+[ext_resource type="AudioStream" uid="uid://dxxjebdcilp44" path="res://Assets/SFX/sf64-menuselect-sfx.wav" id="3_8saeu"]
+[ext_resource type="AudioStream" uid="uid://dk7jw54bgtiru" path="res://Assets/Voice/sf64-rob64-goodluck.wav" id="4_df05h"]
+[ext_resource type="Script" uid="uid://bdujplllphkjr" path="res://Scripts/MM-Animation.gd" id="4_koqhg"]
+[ext_resource type="AudioStream" uid="uid://r3emd3qieapu" path="res://Assets/Music/sf64-opentheme-remix.wav" id="5_8um5k"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_koqhg"]
+albedo_texture = ExtResource("2_xim88")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_cmrfp"]
+size = Vector2(75, 25)
+
+[sub_resource type="Gradient" id="Gradient_loo7a"]
+offsets = PackedFloat32Array(0, 0.4915254, 1)
+colors = PackedColorArray(1, 1, 1, 1, 18.892157, 0, 0, 0.3882353, 1.269618, 1.269618, 1.269618, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_8ibh4"]
+gradient = SubResource("Gradient_loo7a")
+fill_to = Vector2(0, 0.7032967)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_if7li"]
+transparency = 1
+albedo_texture = SubResource("GradientTexture2D_8ibh4")
+proximity_fade_distance = 0.04
+
+[sub_resource type="SphereMesh" id="SphereMesh_rrcx7"]
+lightmap_size_hint = Vector2i(5, 2)
+radius = 0.13
+height = 0.01
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_koqhg"]
+bg_color = Color(0.89492244, 0.89492244, 0.8949224, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="Theme" id="Theme_cmrfp"]
+Button/colors/font_color = Color(0, 0.26666668, 1, 1)
+Button/colors/font_outline_color = Color(0.3106171, 0.31061712, 0.310617, 1)
+Button/constants/outline_size = 1
+Button/styles/normal = SubResource("StyleBoxFlat_koqhg")
 
 [node name="MainMenu" type="Node"]
 script = ExtResource("1_853f1")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Scene" type="Node3D" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, 0.56323767, -0.82629496, 0, 0.82629496, 0.56323767, 0, -8.051653, 0)
+light_color = Color(0.3254902, 1, 1, 1)
+sky_mode = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, -16)
+material_override = SubResource("StandardMaterial3D_koqhg")
+mesh = SubResource("PlaneMesh_cmrfp")
+
+[node name="Model" parent="Scene" instance=ExtResource("2_8um5k")]
+transform = Transform3D(5.284207, 1.3885267, -5.843726, -5.948996, 2.283606, -4.836793, 0.828594, 7.5403657, 2.5409245, -0.6615405, -1.1141933, -5.3687534)
+script = ExtResource("4_koqhg")
+
+[node name="BoostParticles" type="CPUParticles3D" parent="Scene/Model"]
+transform = Transform3D(1, -1.4692889e-09, -9.0264905e-08, -9.026489e-08, -0.032544307, -0.9994704, -1.4692887e-09, 0.9994704, -0.032544307, -0.0037102478, -0.020881524, 0.026977262)
+material_override = SubResource("StandardMaterial3D_if7li")
+cast_shadow = 0
+amount = 6
+lifetime = 0.26
+speed_scale = 1.04
+mesh = SubResource("SphereMesh_rrcx7")
+particle_flag_align_y = true
+gravity = Vector3(-35, -25, 25)
+
+[node name="BoostLight" type="OmniLight3D" parent="Scene/Model"]
+transform = Transform3D(0.33333334, 2.9125486e-08, -3.0089303e-08, -2.9125488e-08, -0.010848211, -0.33315676, -3.0089303e-08, 0.33315676, -0.010848212, -0.0037102464, -0.020881524, 0.049651623)
+omni_range = 2.0
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Scene"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Scene/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Scene/SubViewportContainer/SubViewport"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+visible = false
 z_index = 1
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -18,7 +114,9 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="Control"]
+visible = false
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -27,20 +125,26 @@ grow_vertical = 2
 texture = ExtResource("2_8saeu")
 expand_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -23.5
-offset_right = 20.0
-offset_bottom = 23.5
+offset_left = -143.0
+offset_top = -306.0
+offset_right = 143.0
+offset_bottom = -105.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GameTitle" type="Label" parent="VBoxContainer"]
+[node name="Label" type="Label" parent="Control/VBoxContainer"]
+layout_mode = 2
+text = "v0.9-proto"
+horizontal_alignment = 2
+
+[node name="GameTitle" type="Label" parent="Control/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 1, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0.45490196, 1, 1)
@@ -49,35 +153,48 @@ theme_override_font_sizes/font_size = 50
 text = "DOGFIGHT"
 horizontal_alignment = 1
 
-[node name="NewGame" type="Button" parent="VBoxContainer"]
+[node name="NewGame" type="Button" parent="Control/VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-text = "NEW GAME"
+size_flags_horizontal = 4
+theme = SubResource("Theme_cmrfp")
+text = "MAIN GAME"
 
-[node name="Quit" type="Button" parent="VBoxContainer"]
+[node name="Training" type="Button" parent="Control/VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+size_flags_horizontal = 4
+theme = SubResource("Theme_cmrfp")
+text = "TRAINING"
+
+[node name="Options" type="Button" parent="Control/VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme = SubResource("Theme_cmrfp")
+text = "OPTIONS"
+
+[node name="Quit" type="Button" parent="Control/VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme = SubResource("Theme_cmrfp")
 text = "QUIT"
 
-[node name="Label" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-text = "v0.7-proto"
-
-[node name="SelectSFX" type="AudioStreamPlayer" parent="VBoxContainer"]
+[node name="SelectSFX" type="AudioStreamPlayer" parent="Control/VBoxContainer"]
 stream = ExtResource("3_8saeu")
 
-[node name="ConfirmSFX" type="AudioStreamPlayer" parent="VBoxContainer"]
+[node name="ConfirmSFX" type="AudioStreamPlayer" parent="Control/VBoxContainer"]
 stream = ExtResource("4_df05h")
 volume_db = 5.0
 
-[node name="MenuMusic" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("5_8um5k")
-volume_db = -15.0
-
-[node name="Keyboard" type="RichTextLabel" parent="."]
+[node name="Keyboard" type="RichTextLabel" parent="Control"]
+layout_mode = 0
 offset_left = 22.0
-offset_top = 484.0
+offset_top = 23.0
 offset_right = 213.0
-offset_bottom = 648.0
-text = "Keyboard Controls:
+offset_bottom = 187.0
+text = "Keyboard:
 
 WASD = Movement
 I = Shoot
@@ -85,12 +202,13 @@ Q/E = Bank/Barrel Roll
 J = Boost
 K = Brake"
 
-[node name="Controller" type="RichTextLabel" parent="."]
-offset_left = 213.0
-offset_top = 484.0
-offset_right = 404.0
-offset_bottom = 648.0
-text = "Joystick (Xbox) Controls:
+[node name="Controller" type="RichTextLabel" parent="Control"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 221.0
+offset_right = 213.0
+offset_bottom = 385.0
+text = "Joystick (Xbox):
 
 Right Stick = Movement
 A = Shoot
@@ -98,13 +216,20 @@ LB/RB = Bank/Barrel Roll
 RT = Boost
 LT = Brake"
 
-[node name="Label" type="Label" parent="."]
-offset_left = 482.0
-offset_top = 544.0
-offset_right = 683.0
-offset_bottom = 649.0
+[node name="Label" type="Label" parent="Control"]
+layout_mode = 0
+offset_left = 927.0
+offset_top = 23.0
+offset_right = 1128.0
+offset_bottom = 128.0
 text = "Pause is busted so don't press it unless you wanna restart or quit lmaoo"
 autowrap_mode = 3
 
-[connection signal="pressed" from="VBoxContainer/NewGame" to="." method="_on_new_game_pressed"]
-[connection signal="pressed" from="VBoxContainer/Quit" to="." method="_on_quit_pressed"]
+[node name="MenuMusic" type="AudioStreamPlayer" parent="Control"]
+stream = ExtResource("5_8um5k")
+volume_db = -15.0
+
+[connection signal="pressed" from="Control/VBoxContainer/NewGame" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/Training" to="." method="_on_training_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/Options" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/Quit" to="." method="_on_quit_pressed"]

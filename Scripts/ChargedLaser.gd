@@ -2,12 +2,12 @@
 class_name ChargedLaser extends Area3D
 
 # --- Gameplay settings ---
-@export var speed                 : float = 100.0
-@export var turn_speed            : float = 180.0      # max turn rate in DEGREES per second (tune for feel)
-@export var life_time             : float = 1.5
-@export var pulse_speed           : float = 6.0
-@export var base_emission_energy  : float = 2.0
-@export var homing_min_distance   : float = 0.6
+@export var speed                : float = 100.0 # Default speed of charged laser projectile
+@export var turn_speed           : float = 360.0 # Max turn rate in degrees per sec
+@export var life_time            : float = 1.0   # How long the projectile lasts on screen
+@export var pulse_speed          : float = 6.0   # Pulsing light effect on projectile (broken)
+@export var base_emission_energy : float = 2.0   # Light emission effect on projectile (broken?)
+@export var homing_min_distance  : float = 0.1   # Minimum distance for homing logic
 
 # --- Node settings ---
 @onready var orb_mesh    : MeshInstance3D  = $Orb
@@ -19,13 +19,11 @@ var initial_direction  : Vector3             = Vector3(0, 0, -1)
 var charge_strength    : float               = 1.0
 var life_timer         : float               = 0.0
 var material           : StandardMaterial3D  = null
-
-# movement bookkeeping to detect tunneling
-var _prev_pos          : Vector3 = Vector3.ZERO
+var _prev_pos          : Vector3             = Vector3.ZERO # Movement checking to detect tunneling issue
 
 # Called once when scene starts
 func _ready():
-	# Ensure collision signals connected
+	# Verify collision signals connected
 	if not is_connected("area_entered", Callable(self, "_on_area_entered")):
 		connect("area_entered", Callable(self, "_on_area_entered"))
 	if not is_connected("body_entered", Callable(self, "_on_body_entered")):
@@ -33,8 +31,8 @@ func _ready():
 
 	_prev_pos = global_transform.origin
 
-# Use physics process for movement & collision checks to avoid missed collisions
-func _physics_process(delta: float) -> void:
+# Movement & collision checks to avoid missed collisions
+func _physics_process(delta: float):
 	life_timer += delta
 	if life_timer >= life_time:
 		queue_free()
@@ -47,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	if glow_light:
 		glow_light.light_energy = 0.5 * charge_strength * (0.8 + 0.6 * pulse)
 
-	# current forward direction in world space
+	# Current forward direction in world space
 	var forward = -global_transform.basis.z.normalized()
 	var new_dir : Vector3
 
@@ -55,17 +53,17 @@ func _physics_process(delta: float) -> void:
 		var to_target = target.global_transform.origin - global_transform.origin
 		var dist = to_target.length()
 		if dist <= homing_min_distance:
-			# close enough -> impact
+			# Close enough -> impact
 			_on_hit_target(target)
 			return
 
 		var desired = to_target / dist
 
-		# compute angle between forward and desired (clamp for numerical safety)
+		# Detect angle between forward and desired
 		var dot = clamp(forward.dot(desired), -1.0, 1.0)
 		var angle_between = acos(dot) # radians
 
-		# max turn this frame (turn_speed interpreted as degrees/sec)
+		# Max turn this frame (turn_speed interpreted as degrees/sec)
 		var max_turn = deg_to_rad(turn_speed) * delta
 
 		if angle_between <= 1e-5:
@@ -74,7 +72,7 @@ func _physics_process(delta: float) -> void:
 			var turn_angle = angle_between
 			if turn_angle > max_turn:
 				turn_angle = max_turn
-			# rotation axis
+			# Rotation axis
 			var axis = forward.cross(desired)
 			if axis.length() < 1e-6:
 				axis = forward.cross(Vector3.UP)
@@ -82,24 +80,25 @@ func _physics_process(delta: float) -> void:
 					axis = forward.cross(Vector3.RIGHT)
 			axis = axis.normalized()
 			var q = Quaternion(axis, turn_angle)
-			# rotate using Basis(q)
+			# Rotate using Basis(q)
 			new_dir = (Basis(q) * forward).normalized()
 	else:
-		# No target: move along initial_direction treated as local-space direction
+		# No target
+		# Move along initial_direction treated as local-space direction
 		new_dir = (global_transform.basis * initial_direction).normalized()
 
-	# compute candidate new position
+	# Detect candidate new position
 	var move_vec = new_dir * speed * charge_strength * delta
 	var from_pos = _prev_pos
 	var to_pos = global_transform.origin + move_vec
 
-	# Raycast sweep to detect tunneling (detect collider between prev and new position)
+	# Detect collider between previous and new position
 	var space = get_world_3d().direct_space_state
 	var params = PhysicsRayQueryParameters3D.new()
 	params.from = from_pos
 	params.to = to_pos
 	params.exclude = [self]
-	# optionally set collision_mask if desired
+	# Set collision_mask if desired
 	var hit = space.intersect_ray(params)
 	if hit and hit.has("collider"):
 		var col = hit["collider"]
@@ -108,10 +107,10 @@ func _physics_process(delta: float) -> void:
 			_on_hit_target(col)
 			return
 
-	# apply movement (physics step)
+	# Apply movement
 	global_transform = Transform3D(global_transform.basis, to_pos)
 
-	# visual orientation decoupled from physics movement
+	# Visual orientation detacted from physics movement
 	if new_dir.length() > 0.001:
 		look_at(global_transform.origin + new_dir, Vector3.UP)
 
@@ -147,26 +146,25 @@ func _on_area_entered(area):
 		_on_hit_target(area)
 
 func _on_body_entered(body):
-	# Also handle collisions with PhysicsBody3D (StaticBody3D, RigidBody3D, etc.)
+	# Handle collisions if collider is not in "Laser" group
 	if not body.is_in_group("Laser"):
 		_on_hit_target(body)
 
-# Centralized hit handling: accept collider or its ancestor Node3D as the logical target
-func _on_hit_target(collider: Object) -> void:
+# Accept collider or its ancestor Node3D as the logical target
+func _on_hit_target(collider: Object):
 	var hit_node: Node = null
 	if collider is Node3D:
 		hit_node = collider
 	else:
-		# if collider is a CollisionShape or other object, try its owner/parent
+		# If collider is a CollisionShape or other object, try owner/parent
 		if collider is Object:
-			# try to get node (some intersections return PhysicsDirectSpaceState shapes, but intersect_ray returns 'collider' Node)
-			# fallback: attempt parent chain if collider has get_parent()
+			# Attempt parent chain if collider has get_parent()
 			if "get_parent" in collider:
 				var p = collider.get_parent()
 				if p and p is Node3D:
 					hit_node = p
 
-	# If we found a node, optionally notify it (damage) before freeing
+	# If a node is found, notify damage (if available) before freeing
 	if hit_node and is_instance_valid(hit_node):
 		if hit_node.has_method("apply_damage"):
 			hit_node.apply_damage(100)

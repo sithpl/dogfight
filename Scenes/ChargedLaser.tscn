@@ -16,9 +16,13 @@ height = 1.5
 radius = 1.2
 
 [sub_resource type="SphereMesh" id="SphereMesh_awd68"]
+radius = 0.1
+height = 0.25
 
 [node name="ChargedLaser" type="Area3D"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 script = ExtResource("1")
+speed = 150.0
 
 [node name="Orb" type="MeshInstance3D" parent="."]
 material_override = SubResource("StandardMaterial3D_awd68")
@@ -39,5 +43,10 @@ omni_range = 12.833691
 visible = false
 cast_shadow = 0
 mesh = SubResource("SphereMesh_awd68")
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 1.0
+emission_ring_radius = 1.0
+emission_ring_inner_radius = 0.0
+emission_ring_cone_angle = 90.0
 particle_flag_align_y = true
-gravity = Vector3(0, 0, -1)

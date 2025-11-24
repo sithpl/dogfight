@@ -1,51 +1,22 @@
-[gd_scene load_steps=34 format=3 uid="uid://dv6t735xqxort"]
+[gd_scene load_steps=16 format=3 uid="uid://dv6t735xqxort"]
 
 [ext_resource type="Script" uid="uid://n4mnikfsc3v4" path="res://Scripts/Main.gd" id="1_idj7w"]
-[ext_resource type="Script" uid="uid://b3ymb3vdvhbdu" path="res://Scripts/Player.gd" id="1_r150o"]
-[ext_resource type="Script" uid="uid://u6r8m41cqi70" path="res://Scripts/Gameplay.gd" id="2_bmxlf"]
 [ext_resource type="PackedScene" uid="uid://bsaxnv6uo08cq" path="res://Scenes/HUD.tscn" id="2_h1m7h"]
-[ext_resource type="Script" uid="uid://bjoxf672245cw" path="res://Scripts/PlayerCam.gd" id="2_vy5pj"]
 [ext_resource type="PackedScene" uid="uid://dqsuvkurtebk4" path="res://Scenes/StartMenu.tscn" id="3_erwvk"]
-[ext_resource type="PackedScene" uid="uid://b6nocjktlr8bb" path="res://Scenes/Targets.tscn" id="3_kln2b"]
-[ext_resource type="PackedScene" uid="uid://b33d2ju4ric2q" path="res://Scenes/Laser.tscn" id="4_v1gob"]
-[ext_resource type="PackedScene" uid="uid://dol1nc3s525hv" path="res://Scenes/Arwing.tscn" id="5_jw32o"]
-[ext_resource type="Texture2D" uid="uid://dg5jpiraocf7y" path="res://Assets/aim4.png" id="6_vy5pj"]
-[ext_resource type="PackedScene" uid="uid://li7anc15aqm7" path="res://Scenes/ChargedLaser.tscn" id="8_0sclb"]
-[ext_resource type="AudioStream" uid="uid://nhustl4ayj36" path="res://Assets/hyperlaser-1shot-sfx.wav" id="8_bmxlf"]
-[ext_resource type="AudioStream" uid="uid://73ny83ygb146" path="res://Assets/boost-sfx.wav" id="9_4kpch"]
-[ext_resource type="AudioStream" uid="uid://bqtek2h5rrs4m" path="res://Assets/brake-sfx.wav" id="10_grg3l"]
-[ext_resource type="AudioStream" uid="uid://cj1lkkedysb4b" path="res://Assets/barrelroll-sfx-temp.wav" id="11_frkhe"]
-[ext_resource type="AudioStream" uid="uid://bsyddeoc2lsxx" path="res://Assets/starfox64-corneria-remix.wav" id="14_1p5hy"]
-[ext_resource type="AudioStream" uid="uid://b67c3gdcn8bf3" path="res://Assets/starfox64-charge-sfx.wav" id="15_fq0cl"]
-[ext_resource type="Texture2D" uid="uid://b4s8h33w13bmk" path="res://Assets/LeavesOP.png" id="16_0sclb"]
-[ext_resource type="AudioStream" uid="uid://b6qw1yru5cfwe" path="res://Assets/starfox64-lockon-sfx.wav" id="16_hwpts"]
-[ext_resource type="Texture2D" uid="uid://bs2tmpuvaht7e" path="res://Assets/sky3.jpg" id="17_0sclb"]
-[ext_resource type="AudioStream" uid="uid://5kjvloa1kp1c" path="res://Assets/pep-goodgoing.wav" id="17_2w5on"]
+[ext_resource type="PackedScene" uid="uid://djfyvb5aah6k6" path="res://Scenes/Gameplay.tscn" id="4_vy5pj"]
+[ext_resource type="PackedScene" uid="uid://b6nocjktlr8ba" path="res://Scenes/Targets.tscn" id="7_vy5pj"]
+[ext_resource type="AudioStream" uid="uid://bsyddeoc2lsxx" path="res://Assets/Music/sf64-corneria-remix.wav" id="14_1p5hy"]
+[ext_resource type="Texture2D" uid="uid://b4s8h33w13bmk" path="res://Assets/Textures/LeavesOP.png" id="16_0sclb"]
+[ext_resource type="Texture2D" uid="uid://bs2tmpuvaht7e" path="res://Assets/Textures/sky3.jpg" id="17_0sclb"]
+[ext_resource type="AudioStream" uid="uid://5kjvloa1kp1c" path="res://Assets/Voice/sf64-pep-goodgoing.wav" id="17_2w5on"]
 
 [sub_resource type="Environment" id="Environment_rgh2o"]
-ambient_light_energy = 2.0
-
-[sub_resource type="Gradient" id="Gradient_erwvk"]
-offsets = PackedFloat32Array(0, 0.4915254, 1)
-colors = PackedColorArray(1, 1, 1, 1, 18.892157, 0, 0, 0.3882353, 1.269618, 1.269618, 1.269618, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_8ibh4"]
-gradient = SubResource("Gradient_erwvk")
-fill_to = Vector2(0, 0.7032967)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2w5on"]
-transparency = 1
-albedo_texture = SubResource("GradientTexture2D_8ibh4")
-proximity_fade_distance = 0.04
-
-[sub_resource type="SphereMesh" id="SphereMesh_346fj"]
-lightmap_size_hint = Vector2i(5, 2)
-radius = 0.13
-height = 0.01
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_50glp"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_50glp"]
+background_mode = 2
+fog_enabled = true
+fog_mode = 1
+fog_density = 0.5
+fog_depth_begin = 125.0
+fog_depth_end = 150.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pbw6q"]
 uv1_scale = Vector3(0, 0, 0)
@@ -66,14 +37,8 @@ albedo_texture = ExtResource("17_0sclb")
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_idj7w")
-spawn_interval = 2.0
-fov_lerp_speed = 3.0
-recharge_rate = 33.0
-cooldown_after_use = 0.5
-boost_drain_rate = 60.0
-brake_drain_rate = 60.0
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="FadeEffect" type="ColorRect" parent="."]
 z_index = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -81,130 +46,45 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
 
 [node name="HUD" parent="." instance=ExtResource("2_h1m7h")]
+metadata/_edit_use_anchors_ = true
 
 [node name="StartMenu" parent="." instance=ExtResource("3_erwvk")]
+metadata/_edit_use_anchors_ = true
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_rgh2o")
+[node name="Gameplay" parent="." instance=ExtResource("4_vy5pj")]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.9396926, -0.29619822, 0.17101009, 0, 0.49999997, 0.86602545, -0.3420202, 0.8137977, -0.46984628, 0, 0, 0)
+[node name="Level" type="Node3D" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Level"]
+transform = Transform3D(-0.9396926, -0.29619822, 0.17101008, 0, 0.49999997, 0.86602545, -0.3420202, 0.8137977, -0.46984625, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Gameplay" type="Node3D" parent="."]
-script = ExtResource("2_bmxlf")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Level"]
+environment = SubResource("Environment_rgh2o")
 
-[node name="Bounds" type="Camera3D" parent="Gameplay"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -10)
-fov = 90.0
-
-[node name="PlayerCam" type="Camera3D" parent="Gameplay/Bounds"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
-current = true
-script = ExtResource("2_vy5pj")
-deadzone_size = Vector2(5, 1.5)
-
-[node name="Player" type="CharacterBody3D" parent="Gameplay"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -5)
-script = ExtResource("1_r150o")
-laser_scene = ExtResource("4_v1gob")
-barrel_cooldown = 0.01
-charge_time_max = 1.0
-auto_target_range = 200.0
-charged_laser_scene = ExtResource("8_0sclb")
-lock_reticle_scale = 0.25
-lock_view_cone_deg = 45.0
-hover_reticle_modulate = Color(1, 1, 0.8, 0)
-
-[node name="PlayerMesh" parent="Gameplay/Player" instance=ExtResource("5_jw32o")]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
-
-[node name="BoostParticles" type="CPUParticles3D" parent="Gameplay/Player/PlayerMesh"]
-transform = Transform3D(1, -1.4692889e-09, -9.0264905e-08, -9.026489e-08, -0.032544307, -0.9994704, -1.4692887e-09, 0.9994704, -0.032544307, -0.0037102478, -0.020881524, 0.026977262)
-material_override = SubResource("StandardMaterial3D_2w5on")
-cast_shadow = 0
-lifetime = 0.5
-speed_scale = 5.0
-mesh = SubResource("SphereMesh_346fj")
-particle_flag_align_y = true
-gravity = Vector3(0, 0, -1)
-
-[node name="BoostLight" type="OmniLight3D" parent="Gameplay/Player/PlayerMesh"]
-transform = Transform3D(0.33333334, 2.9125486e-08, -3.0089303e-08, -2.9125488e-08, -0.010848211, -0.33315676, -3.0089303e-08, 0.33315676, -0.010848212, -0.0037102464, -0.020881524, 0.049651623)
-light_energy = 0.2
-light_size = 1.0
-omni_range = 0.149
-omni_attenuation = 1.206
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Gameplay/Player"]
-transform = Transform3D(-5.2453668e-08, -1.2, 0, 1.2, -5.2453668e-08, 0, 0, 0, 1.2, 0, 0, 0)
-shape = SubResource("CapsuleShape3D_50glp")
-
-[node name="Reticle1" type="Sprite3D" parent="Gameplay/Player"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5)
-cast_shadow = 0
-modulate = Color(0, 1, 0.64705884, 0.6862745)
-double_sided = false
-no_depth_test = true
-texture = ExtResource("6_vy5pj")
-
-[node name="Reticle2" type="Sprite3D" parent="Gameplay/Player"]
-transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0, -10)
-cast_shadow = 0
-modulate = Color(0, 1, 0.64705884, 0.6862745)
-double_sided = false
-no_depth_test = true
-texture = ExtResource("6_vy5pj")
-
-[node name="SFX" type="Node3D" parent="Gameplay/Player"]
-
-[node name="Laser" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
-stream = ExtResource("8_bmxlf")
-
-[node name="Boost" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
-stream = ExtResource("9_4kpch")
-
-[node name="Brake" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
-stream = ExtResource("10_grg3l")
-
-[node name="BarrelRoll" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
-stream = ExtResource("11_frkhe")
-
-[node name="Charge" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
-stream = ExtResource("15_fq0cl")
-attenuation_model = 3
-
-[node name="LockOn" type="AudioStreamPlayer3D" parent="Gameplay/Player/SFX"]
-stream = ExtResource("16_hwpts")
-attenuation_model = 3
-
-[node name="Center" type="MeshInstance3D" parent="Gameplay"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
-transparency = 1.0
-cast_shadow = 0
-mesh = SubResource("SphereMesh_50glp")
-skeleton = NodePath("../Player")
-
-[node name="Targets" parent="." instance=ExtResource("3_kln2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
-
-[node name="Ground" type="MeshInstance3D" parent="."]
+[node name="Ground" type="MeshInstance3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
 mesh = SubResource("PlaneMesh_kln2b")
+skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_rgh2o")
 
-[node name="Horizon" type="MeshInstance3D" parent="."]
+[node name="Horizon" type="MeshInstance3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 230.08719, 220.47174)
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_rgh2o")
+skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_sxkr1")
 
-[node name="Theme" type="AudioStreamPlayer" parent="."]
+[node name="Targets" parent="Level" instance=ExtResource("7_vy5pj")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, -16)
+
+[node name="Theme" type="AudioStreamPlayer" parent="Level"]
 stream = ExtResource("14_1p5hy")
 volume_db = -10.0
 
-[node name="VoiceSFX" type="AudioStreamPlayer" parent="."]
+[node name="VoiceSFX" type="AudioStreamPlayer" parent="Level"]
 stream = ExtResource("17_2w5on")
 volume_db = 3.0

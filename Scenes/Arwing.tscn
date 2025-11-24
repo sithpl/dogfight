@@ -1,6 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://dol1nc3s525hv"]
+[gd_scene load_steps=3 format=3 uid="uid://dol1nc3s525hv"]
 
-[ext_resource type="PackedScene" uid="uid://bs2s8wbtpjdac" path="res://Assets/Arwing Star Fox.glb" id="1_7kc81"]
+[ext_resource type="PackedScene" uid="uid://bs2s8wbtpjdac" path="res://Assets/Models/Arwing Star Fox.glb" id="1_7kc81"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7kc81"]
+albedo_color = Color(0.796243, 0.796243, 0.796243, 1)
 
 [node name="Arwing Star Fox" instance=ExtResource("1_7kc81")]
 transform = Transform3D(-3, 0, 2.6226832e-07, 0, 3, 0, -2.6226832e-07, 0, -3, 0, 0, 0)
+
+[node name="group1463920572" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_7kc81")
+
+[node name="group806964330" parent="." index="3"]
+surface_material_override/0 = SubResource("StandardMaterial3D_7kc81")
+
+[node name="group464688159" parent="." index="6"]
+surface_material_override/0 = SubResource("StandardMaterial3D_7kc81")
+
+[node name="group487296091" parent="." index="7"]
+surface_material_override/0 = SubResource("StandardMaterial3D_7kc81")
+
+[node name="group1385402744" parent="." index="9"]
+surface_material_override/0 = SubResource("StandardMaterial3D_7kc81")

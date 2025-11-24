@@ -1,0 +1,126 @@
+[gd_scene load_steps=5 format=3 uid="uid://brfww26p6hhvw"]
+
+[ext_resource type="Script" uid="uid://csfjmehu8b3wj" path="res://Scripts/UI/TransmissionWindow.gd" id="1_fxy2n"]
+[ext_resource type="Theme" uid="uid://ca0evrqq8qmem" path="res://HUD-Dam.tres" id="2_02f1v"]
+[ext_resource type="Texture2D" uid="uid://bcojvgn46c3jb" path="res://Assets/Portrait/cus-noise-portrait.png" id="3_tnj3m"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fxy2n"]
+load_path = "res://.godot/imported/sf0-peppy-portrait.png-c6713ba07417993da1106dad8ea71b47.ctex"
+
+[node name="TransmissionWindow" type="Control"]
+custom_minimum_size = Vector2(750, 138)
+layout_mode = 3
+anchor_left = 0.354
+anchor_top = 0.794
+anchor_right = 0.354
+anchor_bottom = 0.794
+offset_left = -374.808
+offset_top = -97.512024
+offset_right = 375.192
+offset_bottom = 97.487976
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 8
+script = ExtResource("1_fxy2n")
+metadata/_edit_use_anchors_ = true
+
+[node name="StartSFX" type="AudioStreamPlayer" parent="."]
+
+[node name="DamMeterPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.133
+anchor_top = -0.054
+anchor_right = 0.133
+anchor_bottom = -0.054
+offset_left = -78.75
+offset_top = -11.469999
+offset_right = 76.25
+offset_bottom = 23.53
+theme = ExtResource("2_02f1v")
+
+[node name="DamMeter" type="ProgressBar" parent="DamMeterPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -12.5
+offset_right = 70.0
+offset_bottom = 12.5
+grow_horizontal = 2
+grow_vertical = 2
+value = 100.0
+show_percentage = false
+
+[node name="Config" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0777777
+offset_bottom = -15.1666565
+grow_horizontal = 2
+grow_vertical = 0
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="Portrait" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 17.0
+offset_top = 16.0
+offset_right = 182.0
+offset_bottom = 181.0
+texture = SubResource("CompressedTexture2D_fxy2n")
+
+[node name="Noise" type="TextureRect" parent="."]
+layout_mode = 1
+offset_left = 17.0
+offset_top = 16.0
+offset_right = 182.0
+offset_bottom = 181.0
+texture = ExtResource("3_tnj3m")
+
+[node name="Name" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 191.0
+offset_top = 16.0
+offset_right = 375.0
+offset_bottom = 62.0
+theme_override_colors/default_color = Color(0.98039216, 1, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 1
+theme_override_font_sizes/normal_font_size = 32
+text = "PEPPY"
+
+[node name="Audio" type="AudioStreamPlayer" parent="."]
+
+[node name="TextBackground" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 192.0
+offset_top = 62.0
+offset_right = 584.0
+offset_bottom = 181.0
+color = Color(0, 0.21176471, 0.7411765, 0.2784314)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+custom_minimum_size = Vector2(392, 119)
+layout_mode = 0
+offset_left = 192.0
+offset_top = 62.0
+offset_right = 584.0
+offset_bottom = 181.0
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_right = 5
+
+[node name="Text" type="RichTextLabel" parent="MarginContainer"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 1
+theme_override_font_sizes/normal_font_size = 28
+text = "Hold A to lock-on to the enemy!"
+
+[node name="EndSFX" type="AudioStreamPlayer" parent="."]

@@ -1,0 +1,312 @@
+# TransmissionWindow.gd
+class_name TransmissionWindow extends Control
+
+# --- Gameplay settings ---
+@export var noise_flick_interval : float = 0.05
+@export var noise_open_time      : float = 0.1
+@export var noise_hold_time      : float = 0.25    # how long to hold on noise before showing portrait / before closing
+@export var text_open_time       : float = 0.1
+@export var post_voice_padding   : float = 0.12
+@export var fade_out_time        : float = 0.12
+
+@export var reveal_mode: int = 1
+# Reveal mode: 
+	# 0 = horizontal (left/right)
+	# 1 = vertical   (up/down)
+	# 2 = square     (expand both axes)
+	# 3 = circular   (radial)
+
+
+# --- Node settings ---
+@onready var char_dam_panel : Panel             = $DamMeterPanel
+@onready var char_dam       : ProgressBar       = $DamMeterPanel/DamMeter
+@onready var char_portrait  : TextureRect       = $Portrait
+@onready var noise_rect     : TextureRect       = $Noise
+@onready var char_name      : RichTextLabel     = $Name
+@onready var char_text_bg   : ColorRect         = $TextBackground
+@onready var text_container : Control           = $MarginContainer
+@onready var char_text      : RichTextLabel     = $MarginContainer/Text
+@onready var char_audio     : AudioStreamPlayer = $Audio
+@onready var incoming_sfx   : AudioStreamPlayer = $StartSFX
+@onready var end_sfx        : AudioStreamPlayer = $EndSFX
+
+# --- Preload Nodes ---
+@onready var inctrans_sfx = preload("res://Assets/SFX/sf64-inctrans-sfx.wav")
+@onready var endtrans_sfx = preload("res://Assets/SFX/sf64-endtrans-sfx.wav")
+
+# ShaderMaterials for center-out reveal
+var _reveal_shader : Shader         = null
+var _noise_mat     : ShaderMaterial = null
+var _text_mat      : ShaderMaterial = null
+
+# --- Game state variables ---
+var _noise_flick_timer : float               = 0.0
+var _queue             : Array[Transmission] = []
+var _is_playing        : bool                = false
+
+# Called once when scene starts
+func _ready():
+	# Hide when initially calleed
+	visible = false
+	modulate.a = 0.0
+	char_text.bbcode_enabled = false
+
+	# Verify nodes exist
+	noise_rect = get_node_or_null("Noise")
+	text_container = get_node_or_null("MarginContainer") # parent of the text
+
+	# Create reveal shader & materials
+	_create_reveal_shader_and_materials()
+
+	# Apply materials (if available)
+	if _noise_mat and noise_rect:
+		noise_rect.material = _noise_mat
+		_noise_mat.set_shader_parameter("reveal", 0.0)
+		_noise_mat.set_shader_parameter("mode", float(reveal_mode))
+	if _text_mat and text_container:
+		char_text_bg.material = _text_mat
+		_text_mat.set_shader_parameter("reveal", 0.0)
+		_text_mat.set_shader_parameter("mode", float(reveal_mode))
+		_text_mat.set_shader_parameter("border", 0.012)
+
+	# Verify Portrait/Name/DamMeterPanel/TextBG/Text are hidden so Noise reveal looks correct
+	if char_portrait:
+		char_portrait.visible = false
+	if char_name:
+		char_name.visible = false
+	if char_dam_panel:
+		char_dam_panel.visible = false
+	if char_text_bg:
+		char_text_bg.visible = false
+	if text_container:
+		text_container.visible = false
+
+# Called every frame
+func _process(delta: float):
+	# Early out if noise_rect isn't detected
+	if not noise_rect:
+		return
+
+	# Run flicker logic only while noise_rect is visible
+	if noise_rect.visible:
+		# Count down the flicker timer each frame
+		_noise_flick_timer -= delta
+		# When the timer reaches zero, flip the texture and reset the timer
+		if _noise_flick_timer <= 0.0:
+			noise_rect.flip_v = not noise_rect.flip_v
+			noise_rect.flip_h = not noise_rect.flip_h
+			_noise_flick_timer = noise_flick_interval
+	else:
+		# When noise is hidden, reset flip flags to defaults
+		noise_rect.flip_h = false
+		noise_rect.flip_v = false
+
+# Receive data from HUD scene and add the transmission to the play queue
+func play_transmission(t: Transmission):
+	_queue.append(t)
+	if not _is_playing:
+		_process_queue()
+
+# Tranismission queue processor
+func _process_queue():
+	_is_playing = true
+	while _queue.size() > 0:
+		var t: Transmission = _queue.pop_front()
+		await _play_one(t)
+	# Finished all
+	_is_playing = false
+
+# Plays a single transmission and awaits its end
+func _play_one(t: Transmission):
+	# Prepare UI
+	char_portrait.texture = t.char_portrait
+	char_name.text = t.char_name
+	char_text.text = t.char_text
+
+	# Keep DamMeterPanel hidden until portrait reveal
+	if t.char_name == "ROB64": # ROB64 doesn't have a DamMeterPanel
+		char_dam_panel.hide()
+	else:
+		# Verify hidden until reveal moment
+		char_dam_panel.hide()
+
+	# Setup voice audio (but don't play yet)
+	if t.char_voice:
+		char_audio.stream = t.char_voice
+	else:
+		char_audio.stream = null
+
+	# Reset visual reveal parameters
+	if _noise_mat:
+		_noise_mat.set_shader_parameter("reveal", 0.0)
+		_noise_mat.set_shader_parameter("mode", float(reveal_mode))
+	if _text_mat:
+		_text_mat.set_shader_parameter("reveal", 0.0)
+		_text_mat.set_shader_parameter("mode", float(reveal_mode))
+
+	# Verify Noise is visible for the incoming transmission
+	# Verify Portrait/Name/DamMeterPanel/TextBG/Text are hidden
+	if noise_rect:
+		noise_rect.visible = true
+		noise_rect.modulate.a = 1.0
+	if char_portrait:
+		char_portrait.visible = false
+	if char_name:
+		char_name.visible = false
+	if char_dam_panel:
+		char_dam_panel.visible = false
+	if char_text_bg:
+		char_text_bg.visible = false
+	if text_container:
+		text_container.visible = false
+		_text_mat.set_shader_parameter("reveal", 0.0)
+
+	# Show UI
+	visible = true
+	modulate.a = 0.0
+	await create_tween().tween_property(self, "modulate:a", 1.0, 0.12).finished
+
+	# Play incoming sfx
+	if inctrans_sfx and incoming_sfx:
+		incoming_sfx.stream = inctrans_sfx
+		incoming_sfx.play()
+
+	# Animate noise opening (center-out): tween "reveal" from 0 -> 1
+	if _noise_mat:
+		_noise_mat.set_shader_parameter("reveal", 0.0)
+		await create_tween().tween_property(_noise_mat, "shader_parameter/reveal", 1.0, noise_open_time).finished
+
+	# Hold on fully-open noise_rect for set time before revealing portrait
+	await get_tree().create_timer(noise_hold_time).timeout
+
+	# Wait for incoming_sfx only if it's still playing (for audio sync)
+	if incoming_sfx and incoming_sfx.playing:
+		await incoming_sfx.finished
+
+	# Immediately show Portrait/Name/DamMeterPanel together
+	if char_portrait:
+		char_portrait.visible = true
+	if char_name:
+		char_name.visible = true
+	if char_dam_panel:
+		# Show DamMeterPanel everyone except ROB64
+		char_dam_panel.visible = (t.char_name != "ROB64")
+
+	# Hide Noise now that Portrait/Name/DamMeterPanel are revealed
+	if noise_rect:
+		noise_rect.visible = false
+
+	# Show and animate TextBG (center-out)
+	if char_portrait and char_name and char_dam_panel:
+		# Verify TextBG is visible but start with reveal closed
+		char_text_bg.visible = true
+		_text_mat.set_shader_parameter("reveal", 0.0)
+		# Animate TextBG opening (center -> outward)
+		await create_tween().tween_property(_text_mat, "shader_parameter/reveal", 1.0, text_open_time).finished
+
+	# Wait just a sec
+	await get_tree().create_timer(0.5).timeout
+
+	# Verify Text is visible
+	text_container.visible = true
+
+	# Play voice while TextBG/Text is visible
+	if char_audio.stream:
+		char_audio.play()
+		await char_audio.finished
+	else:
+		# No voice -> use provided duration from initial transmission call
+		await get_tree().create_timer(t.duration).timeout
+
+	# Wait a sec, adjust with exported Post Voice Padding
+	await get_tree().create_timer(post_voice_padding).timeout
+
+	# Play end SFX
+	if endtrans_sfx and end_sfx:
+		end_sfx.stream = endtrans_sfx
+		end_sfx.play()
+	
+	# Immediately hide Portrait/Name/DamMeterPanel/Text and prepare Noise for reverse animation
+	if noise_rect and _noise_mat:
+		if char_portrait:
+			char_portrait.visible = false
+		if char_name:
+			char_name.visible = false
+		if char_dam_panel:
+			char_dam_panel.visible = false
+		if text_container:
+			# Reset Text and hide immediately
+			_text_mat.set_shader_parameter("reveal", 0.0)
+			text_container.visible = false
+
+		# Show Noise fully to take over the portrait area
+		noise_rect.visible = true
+		noise_rect.modulate.a = 1.0
+		_noise_mat.set_shader_parameter("reveal", 1.0)
+
+		_text_mat.set_shader_parameter("reveal", 1.0)
+		# Animate TextBG closing (outward -> center)
+		create_tween().tween_property(_text_mat, "shader_parameter/reveal", 0.0, text_open_time).finished
+
+		# Wait a sec, adjust with exported Noise Hold Time
+		await get_tree().create_timer(noise_hold_time).timeout
+
+		# Animate Noise closing (Outward -> Center)
+		await create_tween().tween_property(_noise_mat, "shader_parameter/reveal", 0.0, noise_open_time).finished
+
+		# Hide Noise again, restore initial state
+		noise_rect.visible = false
+
+	# Fade out overall UI
+	await create_tween().tween_property(self, "modulate:a", 0.0, fade_out_time).finished
+	visible = false
+
+# Create a simple centered reveal shader and material instances
+func _create_reveal_shader_and_materials():
+	# Create Shader instance
+	_reveal_shader = Shader.new()
+	# Load code for Shader
+	_reveal_shader.code = """
+shader_type canvas_item;
+
+uniform float reveal : hint_range(0.0, 1.0) = 0.0;
+uniform float border : hint_range(0.0, 0.05) = 0.01;
+uniform float mode : hint_range(0.0, 3.0) = 0.0; // 0 horiz,1 vert,2 square,3 circle
+
+void fragment() {
+	vec4 col = texture(TEXTURE, UV) * COLOR;
+
+	float d;
+	if (mode < 0.5) {
+		// horizontal reveal (left/right from center)
+		d = abs(UV.x - 0.5);
+	} else if (mode < 1.5) {
+		// vertical reveal (up/down from center)
+		d = abs(UV.y - 0.5);
+	} else if (mode < 2.5) {
+		// square reveal (expand in both axes: max distance)
+		d = max(abs(UV.x - 0.5), abs(UV.y - 0.5));
+	} else {
+		// circular/radial reveal
+		d = length(UV - vec2(0.5));
+	}
+
+	// Map 'reveal' so that 0 = fully closed, 1 = fully open (center -> outward)
+	float thresh = reveal * 0.5;
+	// Use smoothstep to soften the edge; mask = 1 when d <= thresh (visible), 0 otherwise.
+	float mask = 1.0 - smoothstep(thresh - border, thresh + border, d);
+
+	COLOR = vec4(col.rgb, col.a * mask);
+}
+"""
+
+	# Create individual ShaderMaterial instances to animate them separately
+	_noise_mat = ShaderMaterial.new()
+	_noise_mat.shader = _reveal_shader.duplicate() if _reveal_shader else null
+
+	_text_mat = ShaderMaterial.new()
+	_text_mat.shader = _reveal_shader.duplicate() if _reveal_shader else null
+
+	# Default parameters (override via exported Reveal Mode)
+	_noise_mat.set_shader_parameter("border", 0.01)
+	_text_mat.set_shader_parameter("border", 0.012)

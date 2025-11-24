@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bsaxnv6uo08cq"]
+[gd_scene load_steps=5 format=3 uid="uid://bsaxnv6uo08cq"]
 
 [ext_resource type="Script" uid="uid://cgjj5ony0ij0v" path="res://Scripts/HUD.gd" id="1_sd512"]
 [ext_resource type="Theme" uid="uid://bdt0o576vpdfy" path="res://HUD-Boost.tres" id="2_jo1ms"]
 [ext_resource type="Theme" uid="uid://ca0evrqq8qmem" path="res://HUD-Dam.tres" id="3_psnte"]
+[ext_resource type="PackedScene" uid="uid://brfww26p6hhvw" path="res://Scenes/TransmissionWindow.tscn" id="4_s3jbq"]
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -16,15 +17,15 @@ script = ExtResource("1_sd512")
 [node name="MissionStart" type="Panel" parent="."]
 custom_minimum_size = Vector2(275, 125)
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.268
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 0.268
 offset_left = -101.0
-offset_top = -213.0
+offset_top = -62.664
 offset_right = 99.0
-offset_bottom = -88.0
+offset_bottom = 62.336
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -36,25 +37,32 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SPACER" type="Label" parent="MissionStart/VBoxContainer"]
+[node name="MarginContainer1" type="MarginContainer" parent="MissionStart/VBoxContainer"]
 layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
 
-[node name="Label" type="Label" parent="MissionStart/VBoxContainer"]
+[node name="Header" type="Label" parent="MissionStart/VBoxContainer/MarginContainer1"]
 layout_mode = 2
-text = "Mission Start"
+theme_override_font_sizes/font_size = 25
+text = "TEST"
 horizontal_alignment = 1
 
-[node name="SPACER2" type="Label" parent="MissionStart/VBoxContainer"]
+[node name="MarginContainer2" type="MarginContainer" parent="MissionStart/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
 
-[node name="Label2" type="Label" parent="MissionStart/VBoxContainer"]
+[node name="Objective" type="Label" parent="MissionStart/VBoxContainer/MarginContainer2"]
 layout_mode = 2
-text = "Test Arwing controls and try to hit 10 targets!"
+text = "TEST"
 horizontal_alignment = 1
 autowrap_mode = 3
-
-[node name="SPACER3" type="Label" parent="MissionStart/VBoxContainer"]
-layout_mode = 2
 
 [node name="ScoreCounter" type="Label" parent="."]
 layout_mode = 0
@@ -73,12 +81,20 @@ offset_bottom = 83.0
 theme = ExtResource("2_jo1ms")
 
 [node name="BoostMeter" type="ProgressBar" parent="BoostMeterPanel"]
-layout_mode = 0
-offset_left = 5.0
-offset_top = 3.0
-offset_right = 145.0
-offset_bottom = 16.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -71.0
+offset_top = -6.0
+offset_right = 71.0
+offset_bottom = 6.0
+grow_horizontal = 2
+grow_vertical = 2
 value = 100.0
+fill_mode = 1
 show_percentage = false
 
 [node name="DamMeterPanel" type="Panel" parent="."]
@@ -90,10 +106,20 @@ offset_bottom = 66.0
 theme = ExtResource("3_psnte")
 
 [node name="DamMeter" type="ProgressBar" parent="DamMeterPanel"]
-layout_mode = 0
-offset_left = 5.0
-offset_top = 5.0
-offset_right = 145.0
-offset_bottom = 30.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -12.5
+offset_right = 70.0
+offset_bottom = 12.5
+grow_horizontal = 2
+grow_vertical = 2
 value = 100.0
 show_percentage = false
+
+[node name="TransmissionWindow" parent="." instance=ExtResource("4_s3jbq")]
+layout_mode = 1
