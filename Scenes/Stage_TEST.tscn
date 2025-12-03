@@ -1,0 +1,93 @@
+[gd_scene load_steps=15 format=3 uid="uid://dlwxw6p75l28l"]
+
+[ext_resource type="Script" uid="uid://e4t14gmu40e4" path="res://Scripts/Stage_TEST.gd" id="1_dv4p1"]
+[ext_resource type="PackedScene" uid="uid://bsaxnv6uo08cq" path="res://Scenes/HUD.tscn" id="2_vpjy5"]
+[ext_resource type="PackedScene" uid="uid://dqsuvkurtebk4" path="res://Scenes/StartMenu.tscn" id="3_gmqg5"]
+[ext_resource type="PackedScene" uid="uid://djfyvb5aah6k6" path="res://Scenes/Gameplay.tscn" id="4_4mhx3"]
+[ext_resource type="PackedScene" uid="uid://7eddyq7av5ld" path="res://Assets/Models/Enemy/GrangaFighter/GrangaFighter.tscn" id="5_x0acx"]
+[ext_resource type="PackedScene" uid="uid://basgq6w5hr6p0" path="res://Assets/Models/Enemy/Tripod/Tripod.tscn" id="6_41uok"]
+[ext_resource type="PackedScene" uid="uid://d3djr03v1rdcs" path="res://Assets/Models/Enemy/Tank/Tank.tscn" id="7_0wntk"]
+[ext_resource type="PackedScene" uid="uid://ch4xukcvsrex0" path="res://Assets/Models/Enemy/Saucer/Saucer.tscn" id="8_tpxwd"]
+[ext_resource type="PackedScene" uid="uid://cvkyckd6m03jd" path="res://Scenes/EnemyLaser.tscn" id="8_vpjy5"]
+[ext_resource type="Texture2D" uid="uid://yqs20txhmh4w" path="res://Assets/Textures/darkgrass.png" id="9_sodqj"]
+
+[sub_resource type="Environment" id="Environment_kbj7r"]
+background_mode = 2
+fog_enabled = true
+fog_mode = 1
+fog_density = 0.5
+fog_depth_begin = 125.0
+fog_depth_end = 150.0
+
+[sub_resource type="Curve3D" id="Curve3D_kbj7r"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 100, 0, 0, 0, 0, 0, 0, 5, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 200),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h8ev4"]
+albedo_texture = ExtResource("9_sodqj")
+uv1_scale = Vector3(5, 20, 20)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_nn7tr"]
+size = Vector2(50, 500)
+
+[node name="Stage_TEST" type="Node3D"]
+script = ExtResource("1_dv4p1")
+
+[node name="FadeEffect" type="ColorRect" parent="."]
+z_index = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="HUD" parent="." instance=ExtResource("2_vpjy5")]
+
+[node name="StartMenu" parent="." instance=ExtResource("3_gmqg5")]
+
+[node name="Gameplay" parent="." instance=ExtResource("4_4mhx3")]
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="GrangaFighter" parent="Level" instance=ExtResource("5_x0acx")]
+transform = Transform3D(-0.02, 0, -3.0199159e-09, 0, 0.02, 0, 3.0199159e-09, 0, -0.02, 20, 0, 15)
+
+[node name="Tripod" parent="Level" instance=ExtResource("6_41uok")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, -20, 0, 15)
+
+[node name="Tank" parent="Level" instance=ExtResource("7_0wntk")]
+transform = Transform3D(-0.02, 0, -1.7484555e-09, 0, 0.02, 0, 1.7484555e-09, 0, -0.02, 10, -5, 15)
+enemy_laser_scene = ExtResource("8_vpjy5")
+volley_count = 1
+gun_offsets = [Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 0, 0)]
+
+[node name="Saucer" parent="Level" instance=ExtResource("8_tpxwd")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, -10, 0, 15)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Level"]
+transform = Transform3D(-0.9978658, -0.056550168, 0.032649256, -0.030216176, 0.84313583, 0.53685105, -0.057886768, 0.5347187, -0.8430451, 0, 4.2847013, -6.4137135)
+light_angular_distance = 90.0
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Level"]
+environment = SubResource("Environment_kbj7r")
+
+[node name="Path3D" type="Path3D" parent="Level"]
+visible = false
+curve = SubResource("Curve3D_kbj7r")
+
+[node name="PathFollow3D" type="PathFollow3D" parent="Level/Path3D"]
+transform = Transform3D(-0.9999996, -8.698883e-09, -8.698909e-08, 0, 0.9950365, -0.099503905, 8.742274e-08, -0.09950363, -0.9950392, 0, 0, 0)
+loop = false
+tilt_enabled = false
+
+[node name="Ground" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 222.24054)
+material_override = SubResource("StandardMaterial3D_h8ev4")
+mesh = SubResource("PlaneMesh_nn7tr")

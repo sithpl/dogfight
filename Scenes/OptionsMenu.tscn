@@ -1,0 +1,235 @@
+[gd_scene load_steps=12 format=3 uid="uid://4rmd4jleujrv"]
+
+[ext_resource type="Script" uid="uid://bjxh1yvce4nkn" path="res://Scripts/OptionsMenu.gd" id="1_jrbyj"]
+[ext_resource type="AudioStream" uid="uid://73ny83ygb146" path="res://Assets/SFX/sf64-boost-sfx.wav" id="2_ayvsw"]
+[ext_resource type="AudioStream" uid="uid://bqtek2h5rrs4m" path="res://Assets/SFX/sf64-brake-sfx.wav" id="3_s3xhb"]
+[ext_resource type="AudioStream" uid="uid://nhustl4ayj36" path="res://Assets/SFX/sf64-hyperlaser1shot-sfx.wav" id="4_un4xt"]
+[ext_resource type="AudioStream" uid="uid://cxwgx52whtxdv" path="res://Assets/Voice/sf64-katt-kiss.wav" id="5_uw46w"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_un4xt"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.89411765, 0.89411765, 0.89411765, 1)
+
+[sub_resource type="Theme" id="Theme_uw46w"]
+Panel/styles/panel = SubResource("StyleBoxFlat_un4xt")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cmrfp"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_koqhg"]
+bg_color = Color(0.89411765, 0.89411765, 0.89411765, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_loo7a"]
+bg_color = Color(0.89411765, 0.89411765, 0.89411765, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="Theme" id="Theme_cmrfp"]
+Button/colors/font_color = Color(0, 0.26666668, 1, 1)
+Button/colors/font_disabled_color = Color(0, 0.26666668, 1, 1)
+Button/colors/font_outline_color = Color(0.3106171, 0.31061712, 0.310617, 1)
+Button/constants/outline_size = 1
+Button/styles/disabled = SubResource("StyleBoxFlat_cmrfp")
+Button/styles/normal = SubResource("StyleBoxFlat_koqhg")
+Label/colors/font_color = Color(0, 0.26666668, 1, 1)
+Label/colors/font_outline_color = Color(0.30980393, 0.30980393, 0.30980393, 1)
+Label/styles/normal = SubResource("StyleBoxFlat_loo7a")
+
+[node name="OptionsMenu" type="Panel"]
+custom_minimum_size = Vector2(300, 300)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.65400004
+anchor_right = 0.5
+anchor_bottom = 0.65400004
+offset_left = -150.0
+offset_top = -149.79202
+offset_right = 150.0
+offset_bottom = 150.20798
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_uw46w")
+script = ExtResource("1_jrbyj")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+
+[node name="Options" type="Label" parent="VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme = SubResource("Theme_cmrfp")
+theme_override_constants/outline_size = 1
+text = "OPTIONS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Volume" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/Volume"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Volume"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VolumeTest" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="EffectsTest" type="Label" parent="MarginContainer/VBoxContainer/VolumeTest"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "LB = Effects Test"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VoiceTest" type="Label" parent="MarginContainer/VBoxContainer/VolumeTest"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "RB = Voice Test"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Effects" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Effects"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Effects"
+
+[node name="EffectsSlider" type="HSlider" parent="MarginContainer/VBoxContainer/Effects"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.5
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath(".")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath("../../Voice/VoiceSlider")
+scrollable = false
+tick_count = 10
+ticks_on_borders = true
+
+[node name="Voice" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Voice"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Voice"
+
+[node name="VoiceSlider" type="HSlider" parent="MarginContainer/VBoxContainer/Voice"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.5
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath("../../Effects/EffectsSlider")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath("../../Music/MusicSlider")
+tick_count = 10
+ticks_on_borders = true
+
+[node name="Music" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Music"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Music"
+
+[node name="MusicSlider" type="HSlider" parent="MarginContainer/VBoxContainer/Music"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.5
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath("../../Voice/VoiceSlider")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath("../../InvertY/InvertBox")
+tick_count = 10
+ticks_on_borders = true
+
+[node name="Controls" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/Controls"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Controls"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InvertY" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/InvertY"]
+layout_mode = 2
+text = "Invert Y Axis"
+
+[node name="InvertBox" type="CheckBox" parent="MarginContainer/VBoxContainer/InvertY"]
+layout_mode = 2
+size_flags_vertical = 4
+focus_neighbor_left = NodePath(".")
+focus_neighbor_top = NodePath("../../Music/MusicSlider")
+focus_neighbor_right = NodePath(".")
+focus_neighbor_bottom = NodePath(".")
+
+[node name="SelectSFX" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_ayvsw")
+bus = &"Effects"
+
+[node name="BackSFX" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_s3xhb")
+bus = &"Effects"
+
+[node name="EffectsTest" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_un4xt")
+bus = &"Effects"
+
+[node name="VoiceTest" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_uw46w")
+bus = &"Voice"
+
+[connection signal="value_changed" from="MarginContainer/VBoxContainer/Effects/EffectsSlider" to="." method="_on_effects_slider_value_changed"]
+[connection signal="value_changed" from="MarginContainer/VBoxContainer/Voice/VoiceSlider" to="." method="_on_voice_slider_value_changed"]
+[connection signal="value_changed" from="MarginContainer/VBoxContainer/Music/MusicSlider" to="." method="_on_music_slider_value_changed"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/InvertY/InvertBox" to="." method="_on_invert_box_toggled"]

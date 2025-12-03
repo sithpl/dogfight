@@ -19,7 +19,7 @@ var initial_direction  : Vector3             = Vector3(0, 0, -1)
 var charge_strength    : float               = 1.0
 var life_timer         : float               = 0.0
 var material           : StandardMaterial3D  = null
-var _prev_pos          : Vector3             = Vector3.ZERO # Movement checking to detect tunneling issue
+var prev_pos          : Vector3             = Vector3.ZERO # Movement checking to detect tunneling issue
 
 # Called once when scene starts
 func _ready():
@@ -29,7 +29,7 @@ func _ready():
 	if not is_connected("body_entered", Callable(self, "_on_body_entered")):
 		connect("body_entered", Callable(self, "_on_body_entered"))
 
-	_prev_pos = global_transform.origin
+	prev_pos = global_transform.origin
 
 # Movement & collision checks to avoid missed collisions
 func _physics_process(delta: float):
@@ -89,7 +89,7 @@ func _physics_process(delta: float):
 
 	# Detect candidate new position
 	var move_vec = new_dir * speed * charge_strength * delta
-	var from_pos = _prev_pos
+	var from_pos = prev_pos
 	var to_pos = global_transform.origin + move_vec
 
 	# Detect collider between previous and new position
@@ -114,12 +114,12 @@ func _physics_process(delta: float):
 	if new_dir.length() > 0.001:
 		look_at(global_transform.origin + new_dir, Vector3.UP)
 
-	_prev_pos = global_transform.origin
+	prev_pos = global_transform.origin
 
-func set_charge_strength(s: float):
+func _set_charge_strength(s: float):
 	charge_strength = clamp(s, 0.0, 2.0)
 
-func set_target(node: Node):
+func _set_target(node: Node):
 	if node and is_instance_valid(node):
 		if node is Node3D:
 			target = node
@@ -128,7 +128,7 @@ func set_target(node: Node):
 			if p and p is Node3D:
 				target = p
 
-func set_initial_direction(dir: Vector3):
+func _set_initial_direction(dir: Vector3):
 	if dir.length() > 0.001:
 		initial_direction = dir.normalized()
 

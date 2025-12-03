@@ -15,7 +15,7 @@ class_name Player extends Node3D
 @export var reticle_x_max        : float = 16                 # Max reticle offset X (left/right)
 @export var reticle_y_max        : float = 9                  # Max reticle offset Y (up/down)
 @export var reticle_sensitivity  : float = 1.0                # How fast the reticle snaps across the screen when aiming
-@export var laser_scene          : PackedScene                # Scene for the laser shot (so it can be externally edited)
+@export var laser_scene          : PackedScene                # Scene for the Laser shot (so it can be externally edited)
 
 # --- Node settings ---
 @onready var mesh            : Node3D              = $PlayerMesh                # Reference to the Player's visible mesh Node3D
@@ -71,11 +71,11 @@ var right_tap_count  : int    = 0    # How many right taps so far
 
 var is_charging                : bool    = false                 # Is the player currently holding charge?
 var charge_timer               : float   = 0.0                   # Total charge time while holding
-var _reticle1_default_modulate : Color   = Color("ffffffff")  # Cached default color for reticle1 to restore after charging
-var _reticle2_default_modulate : Color   = Color("ffffffff")  # Cached default color for reticle2 to restore after charging
-var _reticles_charged_state    : bool    = false                 # True when full charged visual state reached
-var _reticle2_base_scale       : Vector3 = Vector3.ONE           # Saved base scale for reticle2
-var _reticle_pulse_timer       : float   = 0.0                   # Timer used to drive reticle pulse animation
+var reticle1_default_modulate : Color   = Color("ffffffff")  # Cached default color for reticle1 to restore after charging
+var reticle2_default_modulate : Color   = Color("ffffffff")  # Cached default color for reticle2 to restore after charging
+var reticles_charged_state    : bool    = false                 # True when full charged visual state reached
+var reticle2_base_scale       : Vector3 = Vector3.ONE           # Saved base scale for reticle2
+var reticle_pulse_timer       : float   = 0.0                   # Timer used to drive reticle pulse animation
 
 # --- Lock On logic ---
 @export var lock_reticle_scale      : float = 0.25                 # Tuning for lock reticle size
@@ -86,11 +86,11 @@ var _reticle_pulse_timer       : float   = 0.0                   # Timer used to
 @export var hover_reticle_scale     : float = 0.9                  # Hover reticle scale for preview target
 @export var hover_reticle_modulate  : Color = Color("ffffff00")  # Hover reticle tint color
 
-var _lock_target        : Node     = null       # Node that player locked on to (set when full-charged)
-var _lock_reticle       : Sprite3D = null       # runtime-created red reticle that sits on top of the locked target
-var _hover_target       : Node     = null       # Node currently hovered by reticle2 (before lock)
-var _hover_reticle      : Sprite3D = null       # Hover indicator Sprite3D
-var _charge_sfx_played  : bool     = false      # Has charge_sfx played?
+var lock_target        : Node     = null       # Node that player locked on to (set when full-charged)
+var lock_reticle       : Sprite3D = null       # runtime-created red reticle that sits on top of the locked target
+var hover_target       : Node     = null       # Node currently hovered by reticle2 (before lock)
+var hover_reticle      : Sprite3D = null       # Hover indicator Sprite3D
+var charge_sfx_played  : bool     = false      # Has charge_sfx played?
 
 # Called once when scene starts
 func _ready():
@@ -99,10 +99,10 @@ func _ready():
 
 	# Save reticle default colors to restore them after "charge" effect
 	if reticle2:
-		_reticle2_base_scale = reticle2.scale
-		_reticle2_default_modulate = reticle2.modulate
+		reticle2_base_scale = reticle2.scale
+		reticle2_default_modulate = reticle2.modulate
 	if reticle1:
-		_reticle1_default_modulate = reticle1.modulate
+		reticle1_default_modulate = reticle1.modulate
 
 # Called every frame
 func _process(delta: float):
@@ -181,7 +181,7 @@ func _process(delta: float):
 		# Detect double tap LEFT for barrel roll
 		if Input.is_action_just_pressed("ui_bank_left"):
 			if left_tap_timer > 0.0 and left_tap_count == 1:
-				start_barrel_roll(-1)
+				_start_barrel_roll(-1)
 				left_tap_timer = 0.0
 				left_tap_count = 0
 			else:
@@ -196,7 +196,7 @@ func _process(delta: float):
 		# Detect double tap RIGHT for barrel roll
 		if Input.is_action_just_pressed("ui_bank_right"):
 			if right_tap_timer > 0.0 and right_tap_count == 1:
-				start_barrel_roll(1)
+				_start_barrel_roll(1)
 				right_tap_timer = 0.0
 				right_tap_count = 0
 			else:
@@ -212,11 +212,11 @@ func _process(delta: float):
 	if Input.is_action_just_pressed("ui_accept"):
 		is_charging = true
 		charge_timer = 0.0
-		_reticles_charged_state = false
+		reticles_charged_state = false
 		_clear_lock()
 		_clear_hover()
 		# Reset the _charge_sfx_played flag
-		_charge_sfx_played = false
+		charge_sfx_played = false
 		# Verify previous sound stopped
 		if charge_sfx and charge_sfx.is_playing():
 			charge_sfx.stop()
@@ -225,19 +225,19 @@ func _process(delta: float):
 		# Continue charging and refresh hover target each frame
 		charge_timer += delta
 		_update_hover_target()
-		if not _charge_sfx_played and charge_timer >= charge_min_threshold:
+		if not charge_sfx_played and charge_timer >= charge_min_threshold:
 			if charge_sfx:
 				#print("Input.is_action_pressed('ui_accept') and is_charging -> charge_sfx playing! (1)")
 				charge_sfx.play()
-			_charge_sfx_played = true
+			charge_sfx_played = true
 
 		# If player already has a lock, allow "pull away" to cancel it
-		if _lock_target and is_instance_valid(_lock_target):
+		if lock_target and is_instance_valid(lock_target):
 			var eye = mesh.global_transform.origin
 			var view_dir = (reticle2.global_transform.origin - eye)
 			if view_dir.length() >= 0.001:
 				view_dir = view_dir.normalized()
-				var to_lock = (_lock_target.global_transform.origin - eye)
+				var to_lock = (lock_target.global_transform.origin - eye)
 				if to_lock.length() > 0.0001:
 					var cos_angle = view_dir.dot(to_lock.normalized())
 					var cos_threshold = cos(deg_to_rad(clamp(lock_view_cone_deg, 0.0, 89.0)))
@@ -248,86 +248,86 @@ func _process(delta: float):
 						_update_hover_target() 
 
 		# If currently hovering a different target and already fully charged, convert hover into the (new) lock immediately to can retarget mid-hold.
-		if _hover_target and is_instance_valid(_hover_target) and _hover_target != _lock_target and charge_timer >= charge_time_max:
+		if hover_target and is_instance_valid(hover_target) and hover_target != lock_target and charge_timer >= charge_time_max:
 			_clear_lock()
-			_lock_target = _hover_target
+			lock_target = hover_target
 			_clear_hover()
 			_create_lock_reticle()
 			# Revert on-screen reticle to defaults immediately when lock is acquired
 			_reset_reticles()
 			# Play lock sound only if actually in charged state
-			if _reticles_charged_state:
+			if reticles_charged_state:
 				_play_lockon_sfx()
 
 		# Start sustain tone only after threshold
-		if charge_sfx and not _charge_sfx_played and charge_timer >= charge_min_threshold:
+		if charge_sfx and not charge_sfx_played and charge_timer >= charge_min_threshold:
 			#print("Input.is_action_pressed('ui_accept') and is_charging -> charge_sfx playing! (2)")
 			charge_sfx.play()
-			_charge_sfx_played = true
+			charge_sfx_played = true
 
 		# Full-charge reached -> visuals + lock conversion (original behavior)
-		if not _reticles_charged_state and charge_timer >= charge_time_max:
+		if not reticles_charged_state and charge_timer >= charge_time_max:
 			_set_reticles_charging()
-			_reticles_charged_state = true
+			reticles_charged_state = true
 			if charge_sfx and charge_sfx.is_playing():
 				charge_sfx.stop()
 			# Convert current hover to lock if present
-			if _hover_target and is_instance_valid(_hover_target):
-				_lock_target = _hover_target
+			if hover_target and is_instance_valid(hover_target):
+				lock_target = hover_target
 				_clear_hover()
 				_create_lock_reticle()
 				# Revert on-screen reticle to defaults immediately when lock is acquired
 				_reset_reticles()
 				# Play lock sound only if actually in charged state
-				if _reticles_charged_state:
+				if reticles_charged_state:
 					_play_lockon_sfx()
 
 	elif Input.is_action_just_released("ui_accept") and is_charging:
 		is_charging = false
-		# stop any sustain tone if you were using one (optional)
+		# Stop any sustain tone
 		if charge_sfx and charge_sfx.is_playing():
 			charge_sfx.stop()
-		# reset flag
-		_charge_sfx_played = false
+		# Reset flag
+		charge_sfx_played = false
 
 		# decide to shoot or fire charged
 		if charge_timer < charge_min_threshold:
-			shoot_laser()
+			_shoot_laser()
 		else:
-			fire_charged_laser()
+			_fire_charged_laser()
 		charge_timer = 0.0
 		_reset_reticles()
 		_clear_lock()
 		_clear_hover()
-		_reticles_charged_state = false
+		reticles_charged_state = false
 
 	# While locked, update the lock reticle position and pulse (if created)
-	if _lock_target and _lock_reticle:
-		if not is_instance_valid(_lock_target):
+	if lock_target and lock_reticle:
+		if not is_instance_valid(lock_target):
 			_clear_lock()
 		else:
-			var target_pos = _lock_target.global_transform.origin
-			_lock_reticle.global_transform.origin = target_pos
+			var target_pos = lock_target.global_transform.origin
+			lock_reticle.global_transform.origin = target_pos
 
 			# Force a fixed orientation (no tracking). Use local rotation so it remains (0,0,0).
-			_lock_reticle.rotation_degrees = Vector3.ZERO
+			lock_reticle.rotation_degrees = Vector3.ZERO
 
-			# optional scale/pulse (unchanged)
-			var pulse = 0.5 + 0.5 * sin(_reticle_pulse_timer * reticle_pulse_speed)
-			_lock_reticle.scale = Vector3.ONE * (lock_reticle_scale * (1.0 + 0.12 * pulse))
-			_reticle_pulse_timer += delta
+			# Optional scale/pulse
+			var pulse = 0.5 + 0.5 * sin(reticle_pulse_timer * reticle_pulse_speed)
+			lock_reticle.scale = Vector3.ONE * (lock_reticle_scale * (1.0 + 0.12 * pulse))
+			reticle_pulse_timer += delta
 
 	# Reticle2 pulsing when fully charged (visual)
-	if _reticles_charged_state and reticle2 and not _lock_target:
-		_reticle_pulse_timer += delta
-		var pulse = 0.5 + 0.5 * sin(_reticle_pulse_timer * reticle_pulse_speed)  # 0..1
-		reticle2.scale = _reticle2_base_scale * (1.0 + reticle_pulse_scale * pulse)
-		var brightness = 0.85 + 0.35 * pulse   # ~0.85..1.2
+	if reticles_charged_state and reticle2 and not lock_target:
+		reticle_pulse_timer += delta
+		var pulse = 0.5 + 0.5 * sin(reticle_pulse_timer * reticle_pulse_speed)
+		reticle2.scale = reticle2_base_scale * (1.0 + reticle_pulse_scale * pulse)
+		var brightness = 0.85 + 0.35 * pulse
 		brightness = clamp(brightness, 0.0, 1.25)
 		reticle2.modulate = Color(1.0 * brightness, 0.0, 0.0, 1.0)
 	else:
 		if reticle2:
-			reticle2.scale = _reticle2_base_scale
+			reticle2.scale = reticle2_base_scale
 
 	# Update boost/brake states
 	is_boosting = Input.is_action_pressed("ui_boost")
@@ -379,7 +379,7 @@ func _process(delta: float):
 		mesh.rotation_degrees = displayed_rotation
 
 # Returns brake multiplier depending on braking state
-func get_brake_multiplier():
+func _get_brake_multiplier():
 	#print("Player.gd -> _set_reticles_charging() called!")
 	return brake_mult if is_braking else 1.0
 
@@ -391,21 +391,21 @@ func _set_reticles_charging():
 		reticle1.modulate = Color(1, 1, 0, 1)   # yellow
 	if reticle2:
 		reticle2.modulate = Color(1, 0, 0, 1)   # red
-	_reticle_pulse_timer = 0.0
+	reticle_pulse_timer = 0.0
 
 # Restore reticle visuals to defaults (undo charged visuals)
 func _reset_reticles():
 	#print("Player.gd -> _reset_reticles() called!")
 	# Restore cached default colors and scale
 	if reticle1:
-		reticle1.modulate = _reticle1_default_modulate
+		reticle1.modulate = reticle1_default_modulate
 	if reticle2:
-		reticle2.modulate = _reticle2_default_modulate
-		reticle2.scale = _reticle2_base_scale
-	_reticle_pulse_timer = 0.0
+		reticle2.modulate = reticle2_default_modulate
+		reticle2.scale = reticle2_base_scale
+	reticle_pulse_timer = 0.0
 
 # Fire a normal instant laser toward the reticle
-func shoot_laser():
+func _shoot_laser():
 	#print("Player.gd -> shoot_laser() called!")
 	if laser_scene and mesh and reticle2:
 		var laser = laser_scene.instantiate()
@@ -428,7 +428,7 @@ func shoot_laser():
 		laser_sfx.play()
 
 # Spawn and fire a charged laser; aim at locked target center when available
-func fire_charged_laser():
+func _fire_charged_laser():
 	#print("Player.gd -> fire_charged_laser() called!")
 	if not charged_laser_scene or not mesh or not reticle2:
 		return
@@ -442,14 +442,14 @@ func fire_charged_laser():
 	laser.global_transform.origin = spawn_pos
 
 	var strength = clamp(charge_timer / charge_time_max, 0.0, 1.0)
-	if laser.has_method("set_charge_strength"):
-		laser.set_charge_strength(strength)
+	if laser.has_method("_set_charge_strength"):
+		laser._set_charge_strength(strength)
 
 	# Preference to aim directly at locked target center if there is one
 	var world_direction = Vector3.ZERO
-	if _lock_target and is_instance_valid(_lock_target):
+	if lock_target and is_instance_valid(lock_target):
 		# Aim at target's origin (center). Guarantees the initial trajectory points at the locked object.
-		var target_pos = _lock_target.global_transform.origin
+		var target_pos = lock_target.global_transform.origin
 		world_direction = (target_pos - spawn_pos)
 		if world_direction.length() > 0.001:
 			world_direction = world_direction.normalized()
@@ -464,15 +464,15 @@ func fire_charged_laser():
 		laser.look_at(spawn_pos + world_direction, Vector3.UP)
 
 	# Provide projectile its local initial direction using existing API
-	if world_direction.length() > 0.001 and laser.has_method("set_initial_direction"):
+	if world_direction.length() > 0.001 and laser.has_method("_set_initial_direction"):
 		var local_dir = laser.global_transform.basis.inverse() * world_direction
 		if local_dir.length() > 0.001:
 			local_dir = local_dir.normalized()
-		laser.set_initial_direction(local_dir)
+		laser._set_initial_direction(local_dir)
 
 	# Keep any lock reference so the laser can track if it supports it
-	if _lock_target and laser.has_method("set_target"):
-		laser.set_target(_lock_target)
+	if lock_target and laser.has_method("_set_target"):
+		laser._set_target(lock_target)
 
 	# Keep the existing fallback raycast target-set
 	var space = get_world_3d().direct_space_state
@@ -483,22 +483,22 @@ func fire_charged_laser():
 	var hit = space.intersect_ray(params)
 	if hit and hit.has("collider"):
 		var col = hit["collider"]
-		if laser.has_method("set_target"):
-			laser.set_target(col)
+		if laser.has_method("_set_target"):
+			laser._set_target(col)
 
 	laser_sfx.play()
 
 # Clear any active lock and restore reticle visuals appropriately
 func _clear_lock():
 	#print("Player.gd -> _clear_lock() called!")
-	_lock_target = null 
-	if _lock_reticle: 
-		_lock_reticle.queue_free() 
-		_lock_reticle = null 
-		_reticle_pulse_timer = 0.0
+	lock_target = null 
+	if lock_reticle: 
+		lock_reticle.queue_free() 
+		lock_reticle = null 
+		reticle_pulse_timer = 0.0
 
 	# If the lock-on is broken while still holding full charge, re-show charged visuals
-	if is_charging and _reticles_charged_state:
+	if is_charging and reticles_charged_state:
 		_set_reticles_charging()
 	else:
 		_reset_reticles()
@@ -507,30 +507,30 @@ func _clear_lock():
 func _create_lock_reticle():
 	#print("Player.gd -> _create_lock_reticle() called!")
 	# Create a visible lock reticle for the current _lock_target
-	if not reticle2 or not _lock_target:
+	if not reticle2 or not lock_target:
 		return
-	if _lock_reticle:
+	if lock_reticle:
 		return
 
-	_lock_reticle = Sprite3D.new()
-	_lock_reticle.name = "LockReticle"
+	lock_reticle = Sprite3D.new()
+	lock_reticle.name = "LockReticle"
 
 	# Reuse the reticle2 texture where possible
 	if reticle2.texture:
-		_lock_reticle.texture = reticle2.texture
+		lock_reticle.texture = reticle2.texture
 
-	_lock_reticle.modulate = Color(1, 0, 0, 1)
-	_lock_reticle.scale = Vector3.ONE * lock_reticle_scale
+	lock_reticle.modulate = Color(1, 0, 0, 1)
+	lock_reticle.scale = Vector3.ONE * lock_reticle_scale
 
 	# Make sure the reticle is visible and unshaded enough to be seen
-	_lock_reticle.visible = true
+	lock_reticle.visible = true
 
 	# Parent to the lock target so it follows, but set its local transform to identity
-	_lock_target.add_child(_lock_reticle)
+	lock_target.add_child(lock_reticle)
 	#_lock_reticle.transform = Transform3D(Basis(), Vector3.ZERO)
 
 	# Also force its world position immediately (in case parent origin is offset)
-	_lock_reticle.global_transform.origin = _lock_target.global_transform.origin
+	lock_reticle.global_transform.origin = lock_target.global_transform.origin
 
 	# Play lock-on sound once
 	if lockon_sfx:
@@ -549,7 +549,7 @@ func _update_hover_target():
 	#print("DEBUG: Enemy group count =", enemies.size())
 
 	if enemies.size() == 0:
-		# no enemies in group
+		# No enemies in group
 		return
 
 	var eye = mesh.global_transform.origin
@@ -561,6 +561,8 @@ func _update_hover_target():
 	var best: Node3D = null
 	var best_score: float = -INF
 	for e_raw in enemies:
+		if e_raw.is_in_group("Projectile"):
+			continue # Skip to the next node in the list
 		# Nodes coming from group may not be Node3D or may be invalid
 		if not is_instance_valid(e_raw):
 			continue
@@ -608,20 +610,20 @@ func _update_hover_target():
 	if best:
 		# debug print to verify selection during testing (comment out later)
 		#print("DEBUG: hover candidate:", best, "score=", best_score)
-		_hover_target = best
+		hover_target = best
 		_create_hover_reticle()
 		# parent hover reticle to hover target and put at origin (only if not already parented)
-		if _hover_reticle and is_instance_valid(_hover_target):
-			if _hover_reticle.get_parent() != _hover_target:
-				_hover_target.add_child(_hover_reticle)
+		if hover_reticle and is_instance_valid(hover_target):
+			if hover_reticle.get_parent() != hover_target:
+				hover_target.add_child(hover_reticle)
 			#_hover_reticle.transform = Transform3D(Basis(), Vector3.ZERO)
 
 # Create the hover indicator Sprite3D or fallback mesh
 func _create_hover_reticle():
 	#print("Player.gd -> _create_hover_reticle() called!")
-	if not reticle2 or not _hover_target:
+	if not reticle2 or not hover_target:
 		return
-	if _hover_reticle:
+	if hover_reticle:
 		return
 
 	if reticle2.texture:
@@ -630,7 +632,7 @@ func _create_hover_reticle():
 		s.texture = reticle2.texture
 		s.modulate = hover_reticle_modulate
 		s.scale = Vector3.ONE * hover_reticle_scale
-		_hover_reticle = s
+		hover_reticle = s
 	else:
 		var m = MeshInstance3D.new()
 		var q = QuadMesh.new()
@@ -642,15 +644,15 @@ func _create_hover_reticle():
 		mat.emission_enabled = true
 		#mat.emission = hover_reticle_modulate.rgb
 		m.set_surface_override_material(0, mat)
-		_hover_reticle = m
+		hover_reticle = m
 
 # Remove hover indicator and clear hover target
 func _clear_hover():
 	#print("Player.gd -> _clear_hover() called!")
-	_hover_target = null
-	if _hover_reticle:
-		_hover_reticle.queue_free()
-		_hover_reticle = null
+	hover_target = null
+	if hover_reticle:
+		hover_reticle.queue_free()
+		hover_reticle = null
 
 # Check whether 'possible' is the same node or an ancestor of 'target_node'
 func _is_node_or_ancestor(possible, target_node):
@@ -667,7 +669,7 @@ func _is_node_or_ancestor(possible, target_node):
 	return false
 
 # Begin a barrel roll in the given direction (+1 right, -1 left)
-func start_barrel_roll(direction: int):
+func _start_barrel_roll(direction: int):
 	#print("Player.gd -> start_barrel_roll() called!")
 	if !is_doing_barrel_roll and barrel_cooldown_timer == 0.0:
 		is_doing_barrel_roll = true
@@ -686,3 +688,14 @@ func _play_lockon_sfx():
 	if lockon_sfx.is_playing(): 
 		lockon_sfx.stop() 
 		lockon_sfx.play()
+
+# Player collision and damage logic
+func _on_damage_area_entered(area):
+	# Check if the colliding area is an enemy projectile
+	if area.is_in_group("EnemyLaser"):
+		print("Player hit by enemy laser!")
+		# 1. Apply damage
+		# func take_damage to be added later
+		
+		# 2. Despawn the laser projectile (important!)
+		area.queue_free()

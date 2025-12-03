@@ -26,6 +26,7 @@ script = ExtResource("1_fxy2n")
 metadata/_edit_use_anchors_ = true
 
 [node name="StartSFX" type="AudioStreamPlayer" parent="."]
+bus = &"Effects"
 
 [node name="DamMeterPanel" type="Panel" parent="."]
 layout_mode = 1
@@ -97,6 +98,7 @@ theme_override_font_sizes/normal_font_size = 32
 text = "PEPPY"
 
 [node name="Audio" type="AudioStreamPlayer" parent="."]
+bus = &"Voice"
 
 [node name="TextBackground" type="ColorRect" parent="."]
 layout_mode = 0
@@ -124,3 +126,4 @@ theme_override_font_sizes/normal_font_size = 28
 text = "Hold A to lock-on to the enemy!"
 
 [node name="EndSFX" type="AudioStreamPlayer" parent="."]
+bus = &"Effects"
