@@ -27,7 +27,7 @@ anchor_bottom = 0.5
 offset_left = -100.0
 offset_top = -75.0
 offset_right = 100.0
-offset_bottom = 75.0
+offset_bottom = 108.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -44,6 +44,7 @@ layout_mode = 2
 
 [node name="Paused" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
+text = "MISSION PAUSED"
 horizontal_alignment = 1
 
 [node name="SPACER2" type="Label" parent="Panel/VBoxContainer"]
@@ -53,10 +54,15 @@ layout_mode = 2
 layout_mode = 2
 text = "Restart Mission"
 
+[node name="Main Menu" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Quit to Main Menu"
+
 [node name="Quit" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
-text = "Quit Mission"
+text = "Quit to Desktop"
 autowrap_mode = 3
 
 [connection signal="pressed" from="Panel/VBoxContainer/Restart" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/Main Menu" to="." method="_on_main_menu_pressed"]
 [connection signal="pressed" from="Panel/VBoxContainer/Quit" to="." method="_on_quit_pressed"]
