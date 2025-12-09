@@ -118,7 +118,6 @@ offset_right = 70.0
 offset_bottom = 12.5
 grow_horizontal = 2
 grow_vertical = 2
-value = 100.0
 show_percentage = false
 
 [node name="TransmissionWindow" parent="." instance=ExtResource("4_s3jbq")]

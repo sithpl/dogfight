@@ -2,10 +2,8 @@
 
 [ext_resource type="Script" uid="uid://csfjmehu8b3wj" path="res://Scripts/UI/TransmissionWindow.gd" id="1_fxy2n"]
 [ext_resource type="Theme" uid="uid://ca0evrqq8qmem" path="res://HUD-Dam.tres" id="2_02f1v"]
-[ext_resource type="Texture2D" uid="uid://bcojvgn46c3jb" path="res://Assets/Portrait/cus-noise-portrait.png" id="3_tnj3m"]
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fxy2n"]
-load_path = "res://.godot/imported/sf0-peppy-portrait.png-c6713ba07417993da1106dad8ea71b47.ctex"
+[ext_resource type="Texture2D" uid="uid://c3gmcljmo1q6e" path="res://Assets/Portrait/sf64-fox-portrait.png" id="3_jj75a"]
+[ext_resource type="Texture2D" uid="uid://b1ppivt1ggv0x" path="res://Assets/Portrait/sf64-transinc-portrait.png" id="3_tnj3m"]
 
 [node name="TransmissionWindow" type="Control"]
 custom_minimum_size = Vector2(750, 138)
@@ -26,6 +24,7 @@ script = ExtResource("1_fxy2n")
 metadata/_edit_use_anchors_ = true
 
 [node name="StartSFX" type="AudioStreamPlayer" parent="."]
+bus = &"Effects"
 
 [node name="DamMeterPanel" type="Panel" parent="."]
 layout_mode = 1
@@ -74,7 +73,7 @@ offset_left = 17.0
 offset_top = 16.0
 offset_right = 182.0
 offset_bottom = 181.0
-texture = SubResource("CompressedTexture2D_fxy2n")
+texture = ExtResource("3_jj75a")
 
 [node name="Noise" type="TextureRect" parent="."]
 layout_mode = 1
@@ -97,6 +96,7 @@ theme_override_font_sizes/normal_font_size = 32
 text = "PEPPY"
 
 [node name="Audio" type="AudioStreamPlayer" parent="."]
+bus = &"Voice"
 
 [node name="TextBackground" type="ColorRect" parent="."]
 layout_mode = 0
@@ -124,3 +124,4 @@ theme_override_font_sizes/normal_font_size = 28
 text = "Hold A to lock-on to the enemy!"
 
 [node name="EndSFX" type="AudioStreamPlayer" parent="."]
+bus = &"Effects"

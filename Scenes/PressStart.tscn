@@ -1,0 +1,174 @@
+[gd_scene load_steps=17 format=3 uid="uid://cjngxoa2l60a4"]
+
+[ext_resource type="Script" uid="uid://dysjaxbo0h2t7" path="res://Scripts/PressStart.gd" id="1_pdolp"]
+[ext_resource type="Script" uid="uid://bdujplllphkjr" path="res://Scripts/MM-Animation.gd" id="1_smc2o"]
+[ext_resource type="Texture2D" uid="uid://73wqdwyrspxv" path="res://Assets/Textures/Training/blue-stars-black-space.png" id="2_pdolp"]
+[ext_resource type="PackedScene" uid="uid://dol1nc3s525hv" path="res://Scenes/Arwing.tscn" id="3_pdolp"]
+[ext_resource type="PackedScene" uid="uid://pa73v8a6lu67" path="res://Assets/Models/Character/Falco/FalcoLombardi.obj" id="4_co5vi"]
+[ext_resource type="PackedScene" uid="uid://blbwwb6212shn" path="res://Assets/Models/Character/Fox/FoxMcCloud.obj" id="5_5kxj3"]
+[ext_resource type="PackedScene" uid="uid://cx2il2mnd8cxl" path="res://Assets/Models/Character/Slippy/SlippyToad.obj" id="6_c40dk"]
+[ext_resource type="PackedScene" uid="uid://bl61vofst52ee" path="res://Assets/Models/Character/Peppy/PeppyHare.obj" id="7_5wtaj"]
+[ext_resource type="AudioStream" uid="uid://b1bot3bv6lbm3" path="res://Assets/Music/sf64-startdemo1-remix.wav" id="9_co5vi"]
+
+[sub_resource type="Environment" id="Environment_pdolp"]
+background_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3nhcp"]
+shading_mode = 0
+albedo_texture = ExtResource("2_pdolp")
+albedo_texture_force_srgb = true
+uv1_scale = Vector3(4, 2, 0)
+texture_filter = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_7nxf4"]
+size = Vector2(100, 25)
+
+[sub_resource type="Gradient" id="Gradient_x8m2r"]
+offsets = PackedFloat32Array(0, 0.4915254, 1)
+colors = PackedColorArray(1, 1, 1, 1, 18.892157, 0, 0, 0.3882353, 1.269618, 1.269618, 1.269618, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_8ibh4"]
+gradient = SubResource("Gradient_x8m2r")
+fill_to = Vector2(0, 0.7032967)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tfi71"]
+transparency = 1
+albedo_texture = SubResource("GradientTexture2D_8ibh4")
+proximity_fade_distance = 0.04
+
+[sub_resource type="SphereMesh" id="SphereMesh_b0oyj"]
+lightmap_size_hint = Vector2i(5, 2)
+radius = 0.13
+height = 0.01
+
+[node name="PressStart" type="Node"]
+script = ExtResource("1_pdolp")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+z_index = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Label" type="Label" parent="."]
+z_index = 1
+offset_left = 809.0
+offset_top = 53.0
+offset_right = 898.0
+offset_bottom = 76.0
+text = "v0.11-proto"
+horizontal_alignment = 2
+
+[node name="GameTitle" type="Label" parent="."]
+z_index = 1
+custom_minimum_size = Vector2(500, 200)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.23600002
+anchor_right = 0.5
+anchor_bottom = 0.23600002
+offset_left = -320.0
+offset_top = -99.92801
+offset_right = 321.0
+offset_bottom = 100.07199
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0.45490196, 1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 125
+text = "DOGFIGHT"
+horizontal_alignment = 1
+
+[node name="Scene" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Scene"]
+environment = SubResource("Environment_pdolp")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Scene"]
+transform = Transform3D(-0.9848077, -0.013322127, -0.17313649, 0, 0.9970526, -0.07671902, 0.1736483, -0.075553484, -0.9819051, 0, -2.6233497, 0)
+light_energy = 1.5
+light_negative = true
+shadow_enabled = true
+
+[node name="Background" type="MeshInstance3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, -16)
+material_override = SubResource("StandardMaterial3D_3nhcp")
+mesh = SubResource("PlaneMesh_7nxf4")
+
+[node name="Model" parent="Scene" instance=ExtResource("3_pdolp")]
+transform = Transform3D(2.7072098, 2.3777432, -7.142643, -7.2713113, 2.7911956, -1.8268069, 1.949104, 7.110242, 3.1057096, -0.9740143, 0.19463348, -5.3687534)
+script = ExtResource("1_smc2o")
+
+[node name="BoostParticles" type="CPUParticles3D" parent="Scene/Model"]
+transform = Transform3D(1, -1.4692889e-09, -9.0264905e-08, -9.026489e-08, -0.032544307, -0.9994704, -1.4692887e-09, 0.9994704, -0.032544307, -0.0037102478, -0.020881524, 0.026977262)
+material_override = SubResource("StandardMaterial3D_tfi71")
+cast_shadow = 0
+amount = 6
+lifetime = 0.26
+speed_scale = 1.04
+mesh = SubResource("SphereMesh_b0oyj")
+particle_flag_align_y = true
+gravity = Vector3(-35, -25, 25)
+
+[node name="BoostLight" type="OmniLight3D" parent="Scene/Model"]
+transform = Transform3D(0.33333334, 2.9125486e-08, -3.0089303e-08, -2.9125488e-08, -0.010848211, -0.33315676, -3.0089303e-08, 0.33315676, -0.010848212, -0.0037102464, -0.020881524, 0.049651623)
+omni_range = 2.0
+
+[node name="Characters" type="Node3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, 0.9882579, 0.15279613, 0, -0.15279613, 0.9882579, -0.13097525, 0.3510139, 0.22994804)
+
+[node name="FalcoLombardi" parent="Scene/Characters" instance=ExtResource("4_co5vi")]
+transform = Transform3D(0.19877875, 0.0033719486, -0.021809164, -0.00337195, 0.19997151, 0.00018440187, 0.021809164, 0.00018442608, 0.19880728, 1.2435026, -1.2735122, -2.4162207)
+
+[node name="FoxMcCloud" parent="Scene/Characters" instance=ExtResource("5_5kxj3")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.46431243, -1.2242843, -2.1811016)
+
+[node name="SlippyToad" parent="Scene/Characters" instance=ExtResource("6_c40dk")]
+transform = Transform3D(0.2, 0, 0, 0, 0.1980013, -0.028204437, 0, 0.028204437, 0.1980013, -0.42605764, -1.2242843, -2.541956)
+
+[node name="PeppyHare" parent="Scene/Characters" instance=ExtResource("7_5wtaj")]
+transform = Transform3D(0.19906446, -0.0029523307, 0.019095145, 0.002952331, 0.1999782, 0.00014126487, -0.019095143, 0.00014127418, 0.19908634, -1.1135974, -1.2377417, -2.662324)
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Scene"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+metadata/_edit_use_anchors_ = true
+
+[node name="SubViewport" type="SubViewport" parent="Scene/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Scene/SubViewportContainer/SubViewport"]
+
+[node name="PressStart" type="Label" parent="."]
+custom_minimum_size = Vector2(250, 50)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.85400003
+anchor_right = 0.5
+anchor_bottom = 0.85400003
+offset_left = -146.0
+offset_top = -34.39203
+offset_right = 146.0
+offset_bottom = 34.60797
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 50
+text = "Press START"
+
+[node name="Theme" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_co5vi")
+bus = &"Music"

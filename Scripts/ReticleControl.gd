@@ -2,10 +2,10 @@
 extends CanvasLayer
 
 # --- Reticle movement settings ---
-@export var box_half_width   : float = 200    # Horizontal distance from box center (pixels)
-@export var box_half_height  : float = 120    # Vertical distance from box center (pixels)
-@export var reticle_speed    : float = 600    # How fast the reticle offsets (pixels/sec)
-@export var return_speed     : float = 8.0    # How quickly reticle recenters (higher = snappier)
+@export var box_half_width   : float = 200    ## Horizontal distance from box center (pixels)
+@export var box_half_height  : float = 120    ## Vertical distance from box center (pixels)
+@export var reticle_speed    : float = 600    ## How fast the reticle offsets (pixels/sec)
+@export var return_speed     : float = 8.0    ## How quickly reticle recenters (higher = snappier)
 
 @onready var reticle = $Reticle            # The reticle sprite node
 

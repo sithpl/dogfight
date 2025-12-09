@@ -13,10 +13,11 @@ class_name Center extends MeshInstance3D
 @onready var reticle2 := $"../Player/Reticle2"
 
 func _ready():
-	global_transform.origin = Vector3(0, 0, 0) # Sphere at world origin
+	# Place Center at world origin initially
+	global_transform.origin = Vector3(0, 0, 0)
 
 func _process(delta):
-	# Move Center freely based on input
+	# Move Center freely based on input (X/Y only)
 	var input_vector = Vector3.ZERO
 	if Input.is_action_pressed("ui_up"):
 		input_vector.y += 1
@@ -27,14 +28,17 @@ func _process(delta):
 	if Input.is_action_pressed("ui_right"):
 		input_vector.x -= 1
 	input_vector = input_vector.normalized()
+
 	var new_pos = global_transform.origin
 	new_pos.x += input_vector.x * move_speed * delta
 	new_pos.y += input_vector.y * move_speed * delta
 	new_pos.x = clamp(new_pos.x, -area_bounds_x, area_bounds_x)
 	new_pos.y = clamp(new_pos.y, -area_bounds_y, area_bounds_y)
-	new_pos.z = plane_z
+
 	global_transform.origin = new_pos
 
 	# Reticle positions: always aligned in front of Center
-	reticle1.global_transform.origin = global_transform.origin + Vector3(0, 0, reticle1_offset_z)
-	reticle2.global_transform.origin = global_transform.origin + Vector3(0, 0, reticle2_offset_z)
+	if is_instance_valid(reticle1):
+		reticle1.global_transform.origin = global_transform.origin + Vector3(0, 0, reticle1_offset_z)
+	if is_instance_valid(reticle2):
+		reticle2.global_transform.origin = global_transform.origin + Vector3(0, 0, reticle2_offset_z)

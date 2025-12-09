@@ -2,12 +2,15 @@
 class_name ChargedLaser extends Area3D
 
 # --- Gameplay settings ---
-@export var speed                : float = 100.0 # Default speed of charged laser projectile
-@export var turn_speed           : float = 360.0 # Max turn rate in degrees per sec
-@export var life_time            : float = 1.0   # How long the projectile lasts on screen
-@export var pulse_speed          : float = 6.0   # Pulsing light effect on projectile (broken)
-@export var base_emission_energy : float = 2.0   # Light emission effect on projectile (broken?)
-@export var homing_min_distance  : float = 0.1   # Minimum distance for homing logic
+@export var speed                : float = 100.0 ## Default speed of charged laser projectile
+@export var turn_speed           : float = 360.0 ## Max turn rate in degrees per sec
+@export var life_time            : float = 1.0   ## How long the projectile lasts on screen
+@export var pulse_speed          : float = 6.0   ## Pulsing light effect on projectile (broken?)
+@export var base_emission_energy : float = 2.0   ## Light emission effect on projectile (broken?)
+@export var homing_min_distance  : float = 0.1   ## Minimum distance for homing logic
+
+# Small grace period after spawn where collisions are ignored to avoid hitting the shooter
+@export var spawn_grace_time     : float = 0.05
 
 # --- Node settings ---
 @onready var orb_mesh    : MeshInstance3D  = $Orb
@@ -19,7 +22,8 @@ var initial_direction  : Vector3             = Vector3(0, 0, -1)
 var charge_strength    : float               = 1.0
 var life_timer         : float               = 0.0
 var material           : StandardMaterial3D  = null
-var _prev_pos          : Vector3             = Vector3.ZERO # Movement checking to detect tunneling issue
+var prev_pos           : Vector3             = Vector3.ZERO # previous position for tunneling checks
+var _have_prev_pos     : bool                = false       # whether prev_pos has been initialized after spawn
 
 # Called once when scene starts
 func _ready():
@@ -29,14 +33,27 @@ func _ready():
 	if not is_connected("body_entered", Callable(self, "_on_body_entered")):
 		connect("body_entered", Callable(self, "_on_body_entered"))
 
-	_prev_pos = global_transform.origin
+	# try to grab material if available (non-critical)
+	if orb_mesh and orb_mesh.get_surface_override_material(0):
+		material = orb_mesh.get_surface_override_material(0) as StandardMaterial3D
+
+	# Do NOT set prev_pos here — Player/Spawner commonly sets the laser's global_transform AFTER add_child(),
+	# and setting prev_pos in _ready would capture the original placeholder transform (often 0,0,0),
+	# causing an enormous first-frame raycast that can immediately hit level geometry and despawn the projectile.
+	# Instead prev_pos will be initialized safe in _physics_process on the first physics frame.
+
+	prev_pos = Vector3.ZERO
+	_have_prev_pos = false
 
 # Movement & collision checks to avoid missed collisions
 func _physics_process(delta: float):
+	# Track lifetime (used for despawn and spawn grace logic)
 	life_timer += delta
-	if life_timer >= life_time:
-		queue_free()
-		return
+
+	# Initialize prev_pos on the first physics frame after spawn to avoid huge initial raycasts.
+	if not _have_prev_pos:
+		prev_pos = global_transform.origin
+		_have_prev_pos = true
 
 	# Pulse emission/light
 	var pulse = 0.5 + 0.5 * sin(life_timer * pulse_speed)
@@ -89,37 +106,48 @@ func _physics_process(delta: float):
 
 	# Detect candidate new position
 	var move_vec = new_dir * speed * charge_strength * delta
-	var from_pos = _prev_pos
+	var from_pos = prev_pos
 	var to_pos = global_transform.origin + move_vec
 
-	# Detect collider between previous and new position
-	var space = get_world_3d().direct_space_state
-	var params = PhysicsRayQueryParameters3D.new()
-	params.from = from_pos
-	params.to = to_pos
-	params.exclude = [self]
-	# Set collision_mask if desired
-	var hit = space.intersect_ray(params)
-	if hit and hit.has("collider"):
-		var col = hit["collider"]
-		# ignore other lasers, handle only targetable collisions
-		if not col.is_in_group("Laser"):
-			_on_hit_target(col)
-			return
+	# During the initial spawn grace period, skip the raycast collision test to avoid hitting the shooter.
+	var do_raycast = life_timer >= spawn_grace_time
+
+	if do_raycast:
+		# Detect collider between previous and new position
+		var space = get_world_3d().direct_space_state
+		var params = PhysicsRayQueryParameters3D.new()
+		params.from = from_pos
+		params.to = to_pos
+		# exclude self and optionally other projectile nodes
+		params.exclude = [self]
+		var hit = space.intersect_ray(params)
+		if hit and hit.has("collider"):
+			var col = hit["collider"]
+			# ignore other lasers, handle only targetable collisions
+			if not col.is_in_group("Laser"):
+				_on_hit_target(col)
+				return
 
 	# Apply movement
 	global_transform = Transform3D(global_transform.basis, to_pos)
 
-	# Visual orientation detacted from physics movement
+	# Visual orientation detected from physics movement
 	if new_dir.length() > 0.001:
 		look_at(global_transform.origin + new_dir, Vector3.UP)
 
-	_prev_pos = global_transform.origin
+	# Update prev_pos for next frame
+	prev_pos = global_transform.origin
 
-func set_charge_strength(s: float):
+	# Despawn by lifetime
+	if life_time > 0.0 and life_timer >= life_time:
+		queue_free()
+		return
+
+# Public setters used by the spawner (Player)
+func _set_charge_strength(s: float):
 	charge_strength = clamp(s, 0.0, 2.0)
 
-func set_target(node: Node):
+func _set_target(node: Node):
 	if node and is_instance_valid(node):
 		if node is Node3D:
 			target = node
@@ -128,7 +156,7 @@ func set_target(node: Node):
 			if p and p is Node3D:
 				target = p
 
-func set_initial_direction(dir: Vector3):
+func _set_initial_direction(dir: Vector3):
 	if dir.length() > 0.001:
 		initial_direction = dir.normalized()
 
@@ -142,13 +170,26 @@ func _update_visuals():
 
 func _on_area_entered(area):
 	# On hitting anything, despawn (but ignore "Laser" group)
-	if not area.is_in_group("Laser"):
+	if not is_instance_valid(area):
+		return
+	if area.is_in_group("Laser"):
+		return
+	if area.is_in_group("Enemy"):
 		_on_hit_target(area)
+	else:
+		# optional: ignore player and other non-target collisions
+		return
 
 func _on_body_entered(body):
 	# Handle collisions if collider is not in "Laser" group
-	if not body.is_in_group("Laser"):
+	if not is_instance_valid(body):
+		return
+	if body.is_in_group("Laser"):
+		return
+	if body.is_in_group("Enemy"):
 		_on_hit_target(body)
+	else:
+		return
 
 # Accept collider or its ancestor Node3D as the logical target
 func _on_hit_target(collider: Object):

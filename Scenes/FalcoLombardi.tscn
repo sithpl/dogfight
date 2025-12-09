@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7k3v65ooaxwk"]
+
+[ext_resource type="PackedScene" uid="uid://pa73v8a6lu67" path="res://Assets/Models/Character/Falco/FalcoLombardi.obj" id="1_rexd5"]
+
+[node name="FalcoLombardi" instance=ExtResource("1_rexd5")]

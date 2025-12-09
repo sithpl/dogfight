@@ -2,12 +2,14 @@
 class_name Gameplay extends Node3D
 
 # --- Gameplay settings ---
-@export var move_speed        : float = 10.0   # Movement speed through scene along Z axis
-@export var area_bounds_x     : float = 12.0   # Total allowed X axis movement from 0,0,0
-@export var area_bounds_y     : float = 4.5    # Total allowed Y axis movement from 0,0,0
-@export var plane_z           : float = 0.0    # PlayerMesh tracking for input
-@export var reticle1_offset_z : float = -5.0   # Z offset for Reticle1 relative to center
-@export var reticle2_offset_z : float = -10.0  # Z offset for Reticle2 relative to center
+@export var move_speed        : float = 10.0   ## Movement speed through scene along Z axis
+@export var area_bounds_x     : float = 12.0   ## Total allowed X axis movement from 0,0,0
+@export var area_bounds_y     : float = 4.5    ## Total allowed Y axis movement from 0,0,0
+@export var plane_z           : float = 0.0    ## PlayerMesh tracking for input
+@export var reticle1_offset_z : float = -5.0   ## Z offset for Reticle1 relative to center
+@export var reticle2_offset_z : float = -10.0  ## Z offset for Reticle2 relative to center
+
+@export var lock_z_to_plane   : bool  = true   ## If true, Gameplay forces center.z = plane_z every frame
 
 # --- Node settings ---
 @onready var center = $Center             # Central point of player input and movement
@@ -44,8 +46,9 @@ func _process(delta: float):
 	new_pos.x = clamp(new_pos.x, -area_bounds_x, area_bounds_x)
 	new_pos.y = clamp(new_pos.y, -area_bounds_y, area_bounds_y)
 	
-	# Lock Z position so the center node stays on the defined tracking plane
-	new_pos.z = plane_z
+	# Only lock Z if lock_z_to_plane is true. If false, external node can drive center.z
+	if lock_z_to_plane:
+		new_pos.z = plane_z
 	
 	# Apply calculated position to the center node
 	center.global_transform.origin = new_pos

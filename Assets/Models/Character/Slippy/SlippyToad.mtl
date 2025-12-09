@@ -1,0 +1,88 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
+
+newmtl SlippyClothes
+Ka 0.000000 0.000000 0.000000
+Kd 0.047059 0.129412 0.490196
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SlippyClothes.png
+
+newmtl SFbelt
+Ka 0.000000 0.000000 0.000000
+Kd 0.082353 0.082353 0.082353
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SFbelt.png
+
+newmtl Black
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/Black.png
+
+newmtl SFcloth
+Ka 0.000000 0.000000 0.000000
+Kd 0.698039 0.698039 0.698039
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SFcloth.png
+
+newmtl SFScarf
+Ka 0.000000 0.000000 0.000000
+Kd 0.137255 0.003922 0.003922
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SFScarf.png
+
+newmtl SpillyShine
+Ka 0.000000 0.000000 0.000000
+Kd 0.003922 0.349020 0.003922
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SpillyShine.png
+
+newmtl Material2
+Ka 0.000000 0.000000 0.000000
+Kd 0.011765 0.313725 0.000000
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/Material2.png
+
+newmtl SlippyHatFalcoFeather
+Ka 0.000000 0.000000 0.000000
+Kd 0.486275 0.000000 0.000000
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SlippyHatFalcoFeather.png
+
+newmtl Material3
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.258824 0.000000
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/Material3.png
+
+newmtl SlippyEye
+Ka 0.000000 0.000000 0.000000
+Kd 0.870588 0.874510 0.878431
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SlippyEye.png
+
+newmtl EyeBlank
+Ka 0.000000 0.000000 0.000000
+Kd 0.972549 0.972549 0.972549
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/EyeBlank.png
+
+newmtl SlippyHat2
+Ka 0.000000 0.000000 0.000000
+Kd 0.678431 0.552941 0.345098
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SlippyHat2.png
+
+newmtl FoxSkin2
+Ka 0.000000 0.000000 0.000000
+Kd 0.941176 0.843137 0.494118
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/FoxSkin2.png
+
+newmtl SFMetal
+Ka 0.000000 0.000000 0.000000
+Kd 0.376471 0.376471 0.376471
+Ks 0.330000 0.330000 0.330000
+map_Kd SlippyToad/SFMetal.png
+

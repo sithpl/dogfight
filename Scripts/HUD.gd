@@ -18,23 +18,23 @@ func _ready():
 	dam_meter.show()
 
 	# Verify MissionStart panel is hidden when HUD loads (Main will show it when needed)
-	hide_mission_start()
+	_hide_mission_start()
 
 # Show MissionStart Panel
-func show_mission_start(header, start_text):
+func _show_mission_start(header, start_text):
 	# Load information passed from level script
 	mission_header.text = header
 	mission_start_text.text = start_text
 	mission_start.show()
 
 # Hide MissionStart Panel
-func hide_mission_start():
+func _hide_mission_start():
 	mission_start.hide()
 
 # Update the ScoreCounter label text
-func set_score(value):
+func _set_score(value):
 	score_counter.text = "%03d" % value
 
 # Receive transmission data from level, pass to TransmissionWindow scene
-func play_transmission(t: Transmission):
-	transmission_window.call("play_transmission", t)
+func _play_transmission(t: Transmission):
+	transmission_window.call("_play_transmission", t)
