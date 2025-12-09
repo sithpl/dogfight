@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4u81ywge3beq"
-path="res://.godot/imported/sf0-slippy-portrait.png-35db99227d8b5cac6d7562bc68a65ea4.ctex"
+uid="uid://gbrcrt8yrcck"
+path="res://.godot/imported/Bandit.JPG-ee36aa2a401beb797cdc233b6fc30c47.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Portrait/sf0-slippy-portrait.png"
-dest_files=["res://.godot/imported/sf0-slippy-portrait.png-35db99227d8b5cac6d7562bc68a65ea4.ctex"]
+source_file="res://Assets/Models/Enemy/Bandit/Bandit.JPG"
+dest_files=["res://.godot/imported/Bandit.JPG-ee36aa2a401beb797cdc233b6fc30c47.ctex"]
 
 [params]
 

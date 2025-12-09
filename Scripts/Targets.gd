@@ -13,7 +13,7 @@ func _ready():
 
 # Called when another object enters this targets's collision area
 func _on_area_entered(area):
-	print("Targets.gd -> _on_area_entered() called!")
+	#print("Targets.gd -> _on_area_entered() called!")
 	# If the colliding object belongs to the "Laser" group
 	if area.is_in_group("Laser"):
 		# Emit the target_destroyed signal to notify listeners (Training.gd for scoring)

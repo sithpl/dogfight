@@ -2,18 +2,13 @@
 class_name TransmissionWindow extends Control
 
 # --- Gameplay settings ---
-@export var noise_flick_interval : float = 0.05 # Rate at which the Noise TextureRect is flipped (H/V)
-@export var noise_open_time      : float = 0.1  # How long it takes to complete Noise animation
-@export var noise_hold_time      : float = 0.25 # How long to hold Noise before showing/hiding Portrait
-@export var text_open_time       : float = 0.1  # How long it takes to complete TextBG animation
-@export var post_voice_padding   : float = 0.12 # How long it waits after char_audio playback
+@export var noise_flick_interval : float = 0.05 ## Rate at which the Noise TextureRect is flipped (H/V)
+@export var noise_open_time      : float = 0.1  ## How long it takes to complete Noise animation
+@export var noise_hold_time      : float = 0.25 ## How long to hold Noise before showing/hiding Portrait
+@export var text_open_time       : float = 0.1  ## How long it takes to complete TextBG animation
+@export var post_voice_padding   : float = 0.12 ## How long it waits after char_audio playback
 
-@export var reveal_mode: int = 1
-# Reveal mode: 
-	# 0 = horizontal (left/right)
-	# 1 = vertical   (up/down)
-	# 2 = square     (expand both axes)
-	# 3 = circular   (radial)
+@export var reveal_mode: int = 1 ## Reveal mode: 0 = horizontal (left/right), 1 = vertical (up/down), 2 = square (expand both axes), 3 = circular (radial)
 
 
 # --- Node settings ---
@@ -42,6 +37,7 @@ var text_mat      : ShaderMaterial = null
 var noise_flick_timer : float               = 0.0
 var queue             : Array[Transmission] = []
 var is_playing        : bool                = false
+var is_talking        : bool                = false
 
 # Called once when scene starts
 func _ready():
@@ -92,7 +88,7 @@ func _process(delta: float):
 		noise_flick_timer -= delta
 		# When the timer reaches zero, flip the texture and reset the timer
 		if noise_flick_timer <= 0.0:
-			noise_rect.flip_v = not noise_rect.flip_v
+			#noise_rect.flip_v = not noise_rect.flip_v
 			noise_rect.flip_h = not noise_rect.flip_h
 			noise_flick_timer = noise_flick_interval
 	else:
@@ -128,6 +124,11 @@ func _play_one(t: Transmission):
 	else:
 		# Verify hidden until reveal moment
 		char_dam_panel.hide()
+
+	# Start simple talking toggler if talking portrait provided
+	if t.char_talking and t.char_talking != null:
+		# start coroutine (deferred so it doesn't block; toggler runs concurrently)
+		call_deferred("_start_talk", t.char_portrait, t.char_talking, t.talking_fps)
 
 	# Setup voice audio (but don't play yet)
 	if t.char_voice:
@@ -217,6 +218,10 @@ func _play_one(t: Transmission):
 		# No voice -> use provided duration from initial transmission call
 		await get_tree().create_timer(t.duration).timeout
 
+	# Stop talking toggler and restore idle portrait
+	_stop_talk()
+	char_portrait.texture = t.char_portrait
+
 	# Wait a sec, adjust with exported Post Voice Padding
 	await get_tree().create_timer(post_voice_padding).timeout
 
@@ -260,6 +265,22 @@ func _play_one(t: Transmission):
 	# Fade out overall UI
 	await create_tween().tween_property(self, "modulate:a", 0.0, 0.12).finished
 	visible = false
+
+# Flip between idle and talking textures
+func _start_talk(idle_tex: Texture2D, talk_tex: Texture2D, fps: float):
+	if not idle_tex or not talk_tex:
+		return
+	is_talking = true
+	var show_talk : bool = true
+	var frame_time : float = 1.0 / max(fps, 1.0)
+	while is_talking:
+		if char_portrait:
+			char_portrait.texture = talk_tex if show_talk else idle_tex
+		show_talk = not show_talk
+		await get_tree().create_timer(frame_time).timeout
+
+func _stop_talk():
+	is_talking = false
 
 # Create a simple centered reveal shader and material instances
 func _create_reveal_shader_and_materials():

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dw7civwysg2e7"
-path="res://.godot/imported/sf0-falco-portrait.png-51443a1f5945cb7b684f79cfc8d34d16.ctex"
+uid="uid://g1rjnciso6gc"
+path="res://.godot/imported/sf64-peppy-talking.png-2dea1bc160d135c01d0313dd408bef45.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Portrait/sf0-falco-portrait.png"
-dest_files=["res://.godot/imported/sf0-falco-portrait.png-51443a1f5945cb7b684f79cfc8d34d16.ctex"]
+source_file="res://Assets/Portrait/sf64-peppy-talking.png"
+dest_files=["res://.godot/imported/sf64-peppy-talking.png-2dea1bc160d135c01d0313dd408bef45.ctex"]
 
 [params]
 

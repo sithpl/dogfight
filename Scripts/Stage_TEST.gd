@@ -7,25 +7,37 @@ class_name Stage_TEST extends Node3D
 # 12/02/25
 # OKAY FUCK PATH3D BUT I'M KEEPING THE LEVEL FOR TESTING
 
+# 12/07/25
+# Stage_TEST base_scroll_speed = 15 units/sec
+# Corneria from MISSION START to stage boss dead: 00:03:08 (188 secs)
+	# Water to Land      -> 00:00:33 (495 world units)
+	# Land to City       -> 00:00:09 (135 world units)
+	# City to Checkpoint -> 00:00:40 (600 world units)
+	# Checkpoint to Boss -> 00:01:43
+	# Boss Death         -> 00:00:03
+# 188 * 15 = 2835 -> Round up to 2900
+# $Level/Base PlaneMesh size Y = 2900
+
 # --- Gameplay settings ---
-@export var base_scroll_speed : float = 15.0  # How fast the world scrolls by default (units/sec)
-@export var boost_mult        : float = 1.5   # Multiplies base_scroll_speed when boosting
-@export var brake_mult        : float = 0.5   # Multiplies base_scroll_speed when braking
-@export var spawn_interval    : float = 2.0   # Seconds between spawns of targets
-@export var default_fov       : float = 90.0  # Camera FOV by default
-@export var boost_fov         : float = 115.0 # Camera FOV when boosting (speed effect)
-@export var brake_fov         : float = 75.0  # Camera FOV when braking (tunnel vision effect)
-@export var fov_lerp_speed    : float = 3.0   # How quickly the camera FOV transitions
+@export var base_scroll_speed : float = 15.0  ## How fast the world scrolls by default (units/sec)
+@export var boost_mult        : float = 1.5   ## Multiplies base_scroll_speed when boosting
+@export var brake_mult        : float = 0.5   ## Multiplies base_scroll_speed when braking
+@export var spawn_interval    : float = 2.0   ## Seconds between spawns of targets
+@export var default_fov       : float = 75.0  ## Camera FOV by default
+@export var boost_fov         : float = 90.0  ## Camera FOV when boosting (speed effect)
+@export var brake_fov         : float = 50.0  ## Camera FOV when braking (tunnel vision effect)
+@export var fov_lerp_speed    : float = 3.0   ## How quickly the camera FOV transitions
 
 
 # --- Node settings ---
 @onready var fade_effect : ColorRect         = $FadeEffect                # ColorRect used for fade effect (set at Z Index 1)
-@onready var player      : CharacterBody3D   = $Gameplay/Player           # Player node
 @onready var camera      : Camera3D          = $Gameplay/Bounds/PlayerCam # Main camera (controls view & FOV)
-@onready var targets     : Node3D            = $Level/Saucer             # Targets node
-@onready var ground      : MeshInstance3D    = $Level/Ground              # Floor mesh
-#@onready var horizon     : MeshInstance3D    = $Level/Horizon             # Distant horizon mesh
-#@onready var theme       : AudioStreamPlayer = $Level/Theme               # Level background music
+@onready var player      : CharacterBody3D   = $Gameplay/Player           # Player node
+@onready var center      : Node3D            = $Gameplay/Center           # Center node
+@onready var fogwall     : MeshInstance3D    = $Level/FogWall             # FogWall node
+@onready var ground      : MeshInstance3D    = $Level/Base                # Base mesh
+@onready var enemy       : Node3D            = $Level/Enemy               # Enemy container
+@onready var theme       : AudioStreamPlayer = $Level/Theme               # Level background music
 #@onready var voice_sfx   : AudioStreamPlayer = $Level/VoiceSFX            # Voice sound effect player
 
 # --- Preload Nodes ---
@@ -68,13 +80,11 @@ var current_distance : float = 0.0
 func _ready():
 	$StartMenu.visible = false
 
-	# Look at every node inside the "Level" folder (Saucer, Tank, Ground, etc.)
-	for child in $Level.get_children():
-		# Check if this child is actually an enemy with the correct signal
-		if child.has_signal("target_destroyed"):
-			print("Stage_TEST: Connected to existing enemy -> ", child.name)
-			# Connect the signal to the scoring function
-			child.target_destroyed.connect(_on_target_destroyed)
+	# Connect existing enemies that are under $Level (including deep descendants)
+	_connect_existing_level_enemies()
+
+	# Listen for future nodes being added so we can hook up enemies created at runtime
+	get_tree().connect("node_added", Callable(self, "_on_node_added"))
 
 	# Fade in
 	fade_effect.modulate.a = 1.0
@@ -95,34 +105,23 @@ func _ready():
 	_update_hud_meter()
 
 	# Call HUD.gd/show_mission_start(header, start_text)
-	hud._show_mission_start("Mission Start", "Test the Arwing and destroy 30 targets!")
+	hud._show_mission_start("Stage_TEST", "-Mission Description-")
 	# Hide MissionStart Panel after a 2 seconds
 	await get_tree().create_timer(2.0).timeout
 	# Call HUD.gd/hide_mission_start()
 	hud._hide_mission_start()
 	# Call HUD.gd/set_score(), set initial score #
-	hud._set_score(0) 
+	hud._set_score(0)
 
-	# Prepare baked path data
-	#if path_node and path_node.curve:
-		#path_length = path_node.curve.get_baked_length()
-		## get_baked_points() returns a PackedVector3Array of points along the curve
-		#baked_points = path_node.curve.get_baked_points()
-	#else:
-		#path_length = 0.0
-		#baked_points = PackedVector3Array()
-
-	# initialise PathFollow3D global position from _current_distance (keeps basis)
-	#current_distance = 0.0
-	#_apply_current_distance_position()
-
-	# Spawn timer
-	spawn_timer = spawn_interval
+	# Play starfox64-corneria-remix.wav
+	theme.play()
+	# "Corneria" by NoteBlock
+	# Barrel Roll: An Electronic Tribute to Star Fox 64
+	# https://www.youtube.com/watch?v=zZF0_xJ3bPA
 
 	var gameplay_scene = preload("res://Scenes/Gameplay.tscn")
 	var gameplay_inst = gameplay_scene.instantiate()
-	# parent to PathFollow3D so Gameplay inherits the path transform
-	#path_follow.add_child(gameplay_inst)
+
 	# reset local transform so it sits at the PathFollow origin
 	gameplay_inst.transform = Transform3D.IDENTITY
 
@@ -131,9 +130,8 @@ func _ready():
 	if internal_cam:
 		internal_cam.current = false
 
-	# make sure your Stage1 camera (or whichever camera you want) is current
-	# 'camera' must reference the camera you want to use (e.g., Level/Path3D/PathFollow3D/Gameplay/Bounds/PlayerCam)
 	camera.make_current()
+	center.set("lock_z_to_plane", true)
 
 # Checks for specific inputs
 func _input(event):
@@ -144,12 +142,15 @@ func _input(event):
 
 # Called every frame
 func _process(delta):
-	# mission end
-	if score >= 10 and not is_mission_finished:
-		is_mission_finished = true
-		_game_finished()
+	# Mission end
+	#if score == 7:
+		#is_mission_finished = true
+		#_mission_completed()
+	#if $Gameplay/Player.current_vehicle_hp == 0:
+		#is_mission_finished = false
+		#_mission_completed()
 
-	# Boost meter handling (unchanged)
+	# Boost meter handling
 	var prev_meter = meter
 	var prev_cooldown = cooldown_remaining
 
@@ -179,7 +180,7 @@ func _process(delta):
 	if meter != prev_meter or cooldown_remaining != prev_cooldown:
 		_update_hud_meter()
 
-	# movement multipliers
+	# Movement multipliers
 	var speed_mult := 1.0
 	if player.is_boosting:
 		speed_mult = boost_mult
@@ -196,48 +197,40 @@ func _process(delta):
 
 	scroll_speed = base_scroll_speed * speed_mult * bank_speed_mult
 
-	# Camera FOV smoothing
+	# Change camera FOV depending on speed for effect
 	var target_fov = default_fov
+	# If player presses ui_boost
 	if player.is_boosting:
+		# Set FOV to 115
 		target_fov = boost_fov
+	# If player presses ui_brake
 	if player.is_braking:
+		# Set FOV to 75
 		target_fov = brake_fov
+
+	# Smoothly interpolate camera fov for polish effect
 	camera.fov = lerp(camera.fov, target_fov, delta * fov_lerp_speed)
 
-	#if path_length > 0.0 and path_follow:
-		#current_distance += scroll_speed * delta
-		## wrap
-		#if current_distance >= path_length:
-			#current_distance = fmod(current_distance, path_length)
-		#_apply_current_distance_position()
+func _physics_process(delta: float):
+	if is_instance_valid(center):
+		var forward = -center.global_transform.basis.z.normalized()
+		center.global_translate(forward * scroll_speed * delta)
 
-	# --- Spawning targets ahead along the path ---
-	#spawn_timer -= delta
-	#if spawn_timer <= 0.0:
-		#_spawn_target()
-		#spawn_timer = spawn_interval
-
-# Set path_follow global position from _current_distance
-#func _apply_current_distance_position():
-	#if not path_follow or path_length <= 0.0 or baked_points.size() == 0:
-		#return
-	#var pos := _position_at_distance(current_distance)
-	## preserve current basis (rotation) of the PathFollow3D, just set its origin/position
-	#var current_basis = path_follow.global_transform.basis
-	#path_follow.global_transform = Transform3D(current_basis, pos)
+	# if Engine.get_physics_frames() % 60 == 0:
+	#     print("DEBUG Stage_TEST phys: center = ", center.global_transform.origin)
 
 func _position_at_distance(distance: float) -> Vector3:
 	if baked_points.size() == 0:
 		return Vector3.ZERO
 
-	# clamp/wrap distance into [0, _path_length)
+	# Clamp/wrap distance into [0, _path_length)
 	if path_length > 0.0:
 		if distance < 0.0:
 			distance = fmod(distance, path_length) + path_length
 		elif distance >= path_length:
 			distance = fmod(distance, path_length)
 
-	# walk baked segments
+	# Walk baked segments
 	var acc := 0.0
 	for i in range(baked_points.size() - 1):
 		var a = baked_points[i]
@@ -251,40 +244,12 @@ func _position_at_distance(distance: float) -> Vector3:
 			return a.lerp(b, t)
 		acc += seg_len
 
-	# fallback: last baked point
+	# Last baked point
 	return baked_points[baked_points.size() - 1]
-
-# Creates a new target ahead of the player
-func _spawn_target():
-	var scene = preload("res://Scenes/Targets.tscn")
-	var inst = scene.instantiate()
-	#if path_length <= 0.0 or baked_points.size() == 0 or path_follow == null:
-		#push_error("spawn_target: No valid baked path data; cannot spawn target.")
-		#return
-
-	var spawn_distance = current_distance + spawn_z_distance
-	# wrap
-	if spawn_distance >= path_length:
-		spawn_distance = fmod(spawn_distance, path_length)
-
-	var pos = _position_at_distance(spawn_distance)
-	inst.global_transform = Transform3D(inst.global_transform.basis, pos)
-
-	# look-ahead for orientation
-	var ahead_distance = spawn_distance + look_ahead_distance
-	if ahead_distance >= path_length:
-		ahead_distance = fmod(ahead_distance, path_length)
-	var ahead_pos = _position_at_distance(ahead_distance)
-	inst.look_at(ahead_pos, Vector3.UP)
-
-	#targets.add_child(inst)
-	#targets.add_to_group("Enemy")
-	if inst.has_signal("target_destroyed"):
-		inst.target_destroyed.connect(_on_target_destroyed)
 
 # Updates HUD/ScoreCounter on target destroyed
 func _on_target_destroyed():
-	print("Stage_TEST.gd -> on_target_destroyed() called!")
+	#print("Stage_TEST.gd -> on_target_destroyed() called!")
 	# Add 1 hit to total score
 	score += 1
 	# Call set_score in HUD.gd
@@ -305,19 +270,34 @@ func _on_start_menu_closed():
 	menu_is_open = false
 
 # Called when score = X
-func _game_finished():
-	#voice_sfx.play()
-	#await voice_sfx.finished
+func _mission_completed():
+	if is_mission_finished == true:
+		#voice_sfx.play()
+		#await voice_sfx.finished
 
-	var tween = get_tree().create_tween()
-	tween.tween_property(fade_effect, "modulate:a", 1.0, 0.5)
-	await tween.finished
+		var tween = get_tree().create_tween()
+		tween.tween_property(fade_effect, "modulate:a", 1.0, 0.5)
+		await tween.finished
 
-	start_menu = start_menu_scene.instantiate()
-	add_child(start_menu)
-	start_menu.show()
-	start_menu.pause_label.text = "MISSION COMPLETE"
-	get_tree().paused = true
+		start_menu = start_menu_scene.instantiate()
+		add_child(start_menu)
+		start_menu.show()
+		start_menu.pause_label.text = "MISSION COMPLETE"
+		get_tree().paused = true
+
+	if is_mission_finished == false:
+		#voice_sfx.play()
+		#await voice_sfx.finished
+
+		var tween = get_tree().create_tween()
+		tween.tween_property(fade_effect, "modulate:a", 1.0, 0.5)
+		await tween.finished
+
+		start_menu = start_menu_scene.instantiate()
+		add_child(start_menu)
+		start_menu.show()
+		start_menu.pause_label.text = "MISSION FAILED"
+		get_tree().paused = true
 
 # Update HUD boost meter display
 func _update_hud_meter():
@@ -333,3 +313,40 @@ func _update_hud_meter():
 				pb.max_value = max_meter
 				pb.value = meter
 				pb.modulate.a = 0.7 if cooldown_remaining > 0.0 else 1.0
+		if hud.has_node("DamMeterPanel/DamMeter"):
+			var pb = hud.get_node("DamMeterPanel/DamMeter") as ProgressBar
+			if pb:
+				pb.min_value = 0.0
+				pb.max_value = $Gameplay/Player.max_vehicle_hp
+				pb.value = $Gameplay/Player.current_vehicle_hp
+				#pb.modulate.a = 0.7 if cooldown_remaining > 0.0 else 1.0
+
+# Connect already-present Enemy-group nodes that are descendants of $Level
+func _connect_existing_level_enemies():
+	var cb := Callable(self, "_on_target_destroyed")
+	for enemy in get_tree().get_nodes_in_group("Enemy"):
+		if is_instance_valid(enemy) and _is_descendant_of_level(enemy):
+			if enemy.has_signal("target_destroyed") and not enemy.is_connected("target_destroyed", cb):
+				enemy.connect("target_destroyed", cb)
+
+# If the added node is an enemy and it sits under $Level, connect its signal.
+func _on_node_added(node: Node):
+	if not is_instance_valid(node):
+		return
+	# If the node itself is an enemy and lives under $Level, connect it
+	if node.is_in_group("Enemy") and _is_descendant_of_level(node):
+		var cb := Callable(self, "_on_target_destroyed")
+		if node.has_signal("target_destroyed") and not node.is_connected("target_destroyed", cb):
+			node.connect("target_destroyed", cb)
+
+# Rreturns true if the given node is a descendant (any depth) of $Level
+func _is_descendant_of_level(node: Node):
+	if not is_instance_valid(node):
+		return false
+	var root := $Level
+	var n := node
+	while n != null:
+		if n == root:
+			return true
+		n = n.get_parent()
+	return false

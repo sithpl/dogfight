@@ -149,14 +149,18 @@ radius = 0.3330078
 height = 1.2029419
 
 [node name="GrangaFighter" type="Area3D"]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0, 0, 0)
 script = ExtResource("1_ggotv")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0, 0, 0)
 mesh = SubResource("ArrayMesh_0bsyf")
 skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(90, 0, 0, 0, -3.934025e-06, -90, 0, 90, -3.934025e-06, 0, 21, 10)
+transform = Transform3D(90, 0, 0, 0, -3.934025e-06, -90, 0, 90, -3.934025e-06, 0, 21, -10.242638)
 shape = SubResource("CapsuleShape3D_d0bkc")
 
 [node name="DeathSFX" type="AudioStreamPlayer" parent="."]
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

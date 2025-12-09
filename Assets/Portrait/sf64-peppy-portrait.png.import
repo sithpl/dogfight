@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bfy4uijjnqjvf"
-path="res://.godot/imported/sf0-katt-portrait.png-6ece27b60a3d1dfcf97cfedbcd93454b.ctex"
+uid="uid://b4g6i3tsh48sb"
+path="res://.godot/imported/sf64-peppy-portrait.png-9a0f8efbbeb42a0a4f070c65e7285468.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Portrait/sf0-katt-portrait.png"
-dest_files=["res://.godot/imported/sf0-katt-portrait.png-6ece27b60a3d1dfcf97cfedbcd93454b.ctex"]
+source_file="res://Assets/Portrait/sf64-peppy-portrait.png"
+dest_files=["res://.godot/imported/sf64-peppy-portrait.png-9a0f8efbbeb42a0a4f070c65e7285468.ctex"]
 
 [params]
 

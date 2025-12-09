@@ -1,37 +1,171 @@
-[gd_scene load_steps=15 format=3 uid="uid://dlwxw6p75l28l"]
+[gd_scene load_steps=53 format=3 uid="uid://dlwxw6p75l28l"]
 
 [ext_resource type="Script" uid="uid://e4t14gmu40e4" path="res://Scripts/Stage_TEST.gd" id="1_dv4p1"]
 [ext_resource type="PackedScene" uid="uid://bsaxnv6uo08cq" path="res://Scenes/HUD.tscn" id="2_vpjy5"]
 [ext_resource type="PackedScene" uid="uid://dqsuvkurtebk4" path="res://Scenes/StartMenu.tscn" id="3_gmqg5"]
 [ext_resource type="PackedScene" uid="uid://djfyvb5aah6k6" path="res://Scenes/Gameplay.tscn" id="4_4mhx3"]
+[ext_resource type="Script" uid="uid://c0f0xko5ea70j" path="res://Scripts/Path3DController.gd" id="5_4mhx3"]
+[ext_resource type="Texture2D" uid="uid://dm33qi3bau15t" path="res://Assets/Textures/sky23.png" id="5_41uok"]
+[ext_resource type="Texture2D" uid="uid://bs2tmpuvaht7e" path="res://Assets/Textures/sky3.jpg" id="5_gmqg5"]
 [ext_resource type="PackedScene" uid="uid://7eddyq7av5ld" path="res://Assets/Models/Enemy/GrangaFighter/GrangaFighter.tscn" id="5_x0acx"]
-[ext_resource type="PackedScene" uid="uid://basgq6w5hr6p0" path="res://Assets/Models/Enemy/Tripod/Tripod.tscn" id="6_41uok"]
+[ext_resource type="Texture2D" uid="uid://bgu38pt1rxws7" path="res://Assets/Textures/Corneria/sf64-corneria-water.png" id="6_gmqg5"]
 [ext_resource type="PackedScene" uid="uid://d3djr03v1rdcs" path="res://Assets/Models/Enemy/Tank/Tank.tscn" id="7_0wntk"]
+[ext_resource type="Texture2D" uid="uid://dkrhujbhulki5" path="res://Assets/Textures/Corneria/sf64-corneria-mountain.png" id="7_4mhx3"]
+[ext_resource type="Script" uid="uid://cnconkvf46d6l" path="res://Scripts/FogWall.gd" id="7_41uok"]
+[ext_resource type="Texture2D" uid="uid://tyrjc66tt7m4" path="res://Assets/Textures/cus-fog-texture.png" id="8_0wntk"]
 [ext_resource type="PackedScene" uid="uid://ch4xukcvsrex0" path="res://Assets/Models/Enemy/Saucer/Saucer.tscn" id="8_tpxwd"]
-[ext_resource type="PackedScene" uid="uid://cvkyckd6m03jd" path="res://Scenes/EnemyLaser.tscn" id="8_vpjy5"]
-[ext_resource type="Texture2D" uid="uid://yqs20txhmh4w" path="res://Assets/Textures/darkgrass.png" id="9_sodqj"]
+[ext_resource type="Texture2D" uid="uid://d2o130aln2drs" path="res://Assets/Textures/Corneria/sf64-corneria-rock.png" id="10_x0acx"]
+[ext_resource type="Texture2D" uid="uid://cd5nrpdfh2p8o" path="res://Assets/Textures/Corneria/sf64-corneria-grass.png" id="11_0wntk"]
+[ext_resource type="Texture2D" uid="uid://cwnalhhdsi1ei" path="res://Assets/Textures/Corneria/sf64-corneria-cliffs.png" id="12_41uok"]
+[ext_resource type="Texture2D" uid="uid://dad0mpf7e7aca" path="res://Assets/Textures/Corneria/sf64-corneria-building-1.png" id="14_htyvx"]
+[ext_resource type="AudioStream" uid="uid://bsyddeoc2lsxx" path="res://Assets/Music/sf64-corneria-remix.wav" id="19_htyvx"]
 
-[sub_resource type="Environment" id="Environment_kbj7r"]
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_0wntk"]
+panorama = ExtResource("5_41uok")
+
+[sub_resource type="Sky" id="Sky_tpxwd"]
+sky_material = SubResource("PanoramaSkyMaterial_0wntk")
+
+[sub_resource type="Environment" id="Environment_vpjy5"]
 background_mode = 2
-fog_enabled = true
+sky = SubResource("Sky_tpxwd")
+sky_custom_fov = 50.0
+sky_rotation = Vector3(0, -0.7853982, 0)
 fog_mode = 1
 fog_density = 0.5
 fog_depth_begin = 125.0
 fog_depth_end = 150.0
+volumetric_fog_emission = Color(0.446777, 0.44677705, 0.44677705, 1)
+volumetric_fog_length = 12.0
 
-[sub_resource type="Curve3D" id="Curve3D_kbj7r"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gmqg5"]
+albedo_color = Color(0, 0.12869334, 0.09247825, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_41uok"]
+size = Vector2(500, 2900)
+
+[sub_resource type="QuadMesh" id="QuadMesh_tpxwd"]
+size = Vector2(2, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0acx"]
+shading_mode = 0
+disable_fog = true
+albedo_texture = ExtResource("5_gmqg5")
+uv1_scale = Vector3(1, 1, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h8ev4"]
+shading_mode = 0
+albedo_texture = ExtResource("6_gmqg5")
+uv1_scale = Vector3(20, 25, 0)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_x0acx"]
+size = Vector2(500, 510)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_x0acx"]
+top_radius = 3.0
+bottom_radius = 32.874
+height = 50.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_41uok"]
+shading_mode = 0
+albedo_texture = ExtResource("7_4mhx3")
+uv1_scale = Vector3(2, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0wntk"]
+shading_mode = 0
+albedo_texture = ExtResource("10_x0acx")
+uv1_scale = Vector3(20, 5, 0)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_tpxwd"]
+size = Vector2(500, 140)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0wntk"]
+size = Vector3(50, 50, 125)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tpxwd"]
+albedo_texture = ExtResource("12_41uok")
+uv1_scale = Vector3(10, 3, 0)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sodqj"]
+albedo_texture = ExtResource("12_41uok")
+uv1_scale = Vector3(10, 3, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1cmee"]
+shading_mode = 0
+albedo_texture = ExtResource("11_0wntk")
+uv1_scale = Vector3(10, 20, 0)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_htyvx"]
+size = Vector2(500, 625)
+
+[sub_resource type="BoxMesh" id="BoxMesh_htyvx"]
+size = Vector3(20, 10, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cj0o4"]
+albedo_texture = ExtResource("10_x0acx")
+uv1_scale = Vector3(3, 3, 3)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_htyvx"]
+top_radius = 7.5
+bottom_radius = 7.5
+height = 100.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_htyvx"]
+albedo_texture = ExtResource("14_htyvx")
+uv1_scale = Vector3(1, 10, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tpxwd"]
+top_radius = 5.0
+bottom_radius = 5.0
+height = 100.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_i658a"]
+size = Vector3(5, 5, 200)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_1cmee"]
+load_path = "res://.godot/imported/sf64-corneria-road.png-23ab82a6c5f1c21ed8b49ccc066eb5d4.s3tc.ctex"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ciinm"]
+albedo_texture = SubResource("CompressedTexture2D_1cmee")
+uv1_scale = Vector3(3, 50, 0)
+
+[sub_resource type="BoxMesh" id="BoxMesh_cj0o4"]
+size = Vector3(5, 2.5, 100)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ciinm"]
+size = Vector3(5, 2.5, 50)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8td3h"]
+albedo_texture = SubResource("CompressedTexture2D_1cmee")
+uv1_scale = Vector3(3, 15, 0)
+
+[sub_resource type="Curve3D" id="Curve3D_4mhx3"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 100, 0, 0, 0, 0, 0, 0, 5, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 200),
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, -16.98526, 0, -7.15427, 0, 0, 0, 0, 0, 0, -47.201, 0, -20, 0, 0, 0, 0, 0, 0, -66.787186, 20.110157, -28.14335),
 "tilts": PackedFloat32Array(0, 0, 0, 0)
 }
 point_count = 4
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h8ev4"]
-albedo_texture = ExtResource("9_sodqj")
-uv1_scale = Vector3(5, 20, 20)
+[sub_resource type="Curve3D" id="Curve3D_htyvx"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, -16.98526, 0, -7.15427, 0, 0, 0, 0, 0, 0, -47, 0, -20, 0, 0, 0, 0, 0, 0, -51.704605, 3.8146973e-06, -39.998344, 0, 0, 0, 0, 0, 0, 4.8296814, 0, -51.358715, 0, 0, 0, 0, 0, 0, 44.043762, 16.833557, -18.284027),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+}
+point_count = 6
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_nn7tr"]
-size = Vector2(50, 500)
+[sub_resource type="Curve3D" id="Curve3D_cj0o4"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, -16.98526, 0, -7.15427, 0, 0, 0, 0, 0, 0, -47, 0, -20, 0, 0, 0, 0, 0, 0, -51.704605, 3.8146973e-06, -39.998344, 0, 0, 0, 0, 0, 0, 4.8296814, 0, -51.358715, 0, 0, 0, 0, 0, 0, 44.043762, 16.833557, -18.284027),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+}
+point_count = 6
+
+[sub_resource type="Curve3D" id="Curve3D_i658a"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, -16.98526, 0, -7.15427, 0, 0, 0, 0, 0, 0, -47, 0, -20, 0, 0, 0, 0, 0, 0, -51.704605, 3.8146973e-06, -39.998344, 0, 0, 0, 0, 0, 0, 4.8296814, 0, -51.358715, 0, 0, 0, 0, 0, 0, 44.043762, 16.833557, -18.284027),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+}
+point_count = 6
 
 [node name="Stage_TEST" type="Node3D"]
 script = ExtResource("1_dv4p1")
@@ -55,39 +189,355 @@ transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
 
 [node name="Level" type="Node3D" parent="."]
 
-[node name="GrangaFighter" parent="Level" instance=ExtResource("5_x0acx")]
-transform = Transform3D(-0.02, 0, -3.0199159e-09, 0, 0.02, 0, 3.0199159e-09, 0, -0.02, 20, 0, 15)
-
-[node name="Tripod" parent="Level" instance=ExtResource("6_41uok")]
-transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, -20, 0, 15)
-
-[node name="Tank" parent="Level" instance=ExtResource("7_0wntk")]
-transform = Transform3D(-0.02, 0, -1.7484555e-09, 0, 0.02, 0, 1.7484555e-09, 0, -0.02, 10, -5, 15)
-enemy_laser_scene = ExtResource("8_vpjy5")
-volley_count = 1
-gun_offsets = [Vector3(0, 1, 0), Vector3(0, 0, 0), Vector3(1, 0, 0)]
-
-[node name="Saucer" parent="Level" instance=ExtResource("8_tpxwd")]
-transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, -10, 0, 15)
-
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Level"]
 transform = Transform3D(-0.9978658, -0.056550168, 0.032649256, -0.030216176, 0.84313583, 0.53685105, -0.057886768, 0.5347187, -0.8430451, 0, 4.2847013, -6.4137135)
 light_angular_distance = 90.0
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Level"]
-environment = SubResource("Environment_kbj7r")
+environment = SubResource("Environment_vpjy5")
 
-[node name="Path3D" type="Path3D" parent="Level"]
+[node name="Base" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 1441.5737)
 visible = false
-curve = SubResource("Curve3D_kbj7r")
+material_override = SubResource("StandardMaterial3D_gmqg5")
+mesh = SubResource("PlaneMesh_41uok")
 
-[node name="PathFollow3D" type="PathFollow3D" parent="Level/Path3D"]
-transform = Transform3D(-0.9999996, -8.698883e-09, -8.698909e-08, 0, 0.9950365, -0.099503905, 8.742274e-08, -0.09950363, -0.9950392, 0, 0, 0)
-loop = false
-tilt_enabled = false
+[node name="FogWall" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(-1, -8.742278e-08, 0, 8.742278e-08, -1, 0, 0, 0, 1, 0, 0, 250)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_tpxwd")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_x0acx")
+script = ExtResource("7_41uok")
+opacity = 0.3
+noise_tex = ExtResource("8_0wntk")
 
-[node name="Ground" type="MeshInstance3D" parent="Level"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 222.24054)
+[node name="Water" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 241.58984)
 material_override = SubResource("StandardMaterial3D_h8ev4")
-mesh = SubResource("PlaneMesh_nn7tr")
+mesh = SubResource("PlaneMesh_x0acx")
+
+[node name="Mountains" type="Node3D" parent="Level/Water"]
+
+[node name="Mountains1" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(0.98849654, 0, 0.15124357, 0, 1, 0, -0.15124357, 0, 0.98849654, 161.03766, 20.793785, 192.00317)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains2" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(1.9769931, 0, 0.30248713, 0, 2, 0, -0.30248713, 0, 1.9769931, 201.97269, 27.103653, 220.39828)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains3" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(0.98849654, 0, 0.15124357, 0, 1, 0, -0.15124357, 0, 0.98849654, 199.75992, 15.31337, 148.38794)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains9" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(1.9769931, 0, 0.30248713, 0, 2, 0, -0.30248713, 0, 1.9769931, 142.71164, 20.188599, 231.57227)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains4" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(1.9769931, 0, 0.30248713, 0, 2, 0, -0.30248713, 0, 1.9769931, 95.78613, 26.822098, 273.37518)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains5" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(0.020942464, 0, -0.9997807, 0, 1, 0, 0.9997807, 0, 0.020942464, -179.91858, 20.793785, 180.62329)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains6" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(0.04188493, 0, -1.9995614, 0, 2, 0, 1.9995614, 0, 0.04188493, -203.84824, 27.103653, 217.50238)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains7" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(0.04188485, 0, -1.9995613, 0, 2, 0, 1.9995613, 0, 0.04188485, -101.68991, 42.038376, 248.67542)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains8" type="MeshInstance3D" parent="Level/Water/Mountains"]
+transform = Transform3D(0.020942464, 0, -0.9997807, 0, 1, 0, 0.9997807, 0, 0.020942464, -238.82272, 15.57238, 149.23615)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Landing" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 566.4709)
+material_override = SubResource("StandardMaterial3D_0wntk")
+mesh = SubResource("PlaneMesh_tpxwd")
+
+[node name="Mountains" type="Node3D" parent="Level/Landing"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -566.4709)
+
+[node name="Mountains10" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-0.9999581, 0, 0.009162943, 0, 1, 0, -0.009162943, 0, -0.9999581, -177.13167, 15.793785, 703.418)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains11" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-1.9999162, 0, 0.018325886, 0, 2, 0, -0.018325886, 0, -1.9999162, -212.98578, 22.103653, 668.82837)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains12" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-0.9999581, 0, 0.009162943, 0, 1, 0, -0.009162943, 0, -0.9999581, -222.34451, 10.31337, 740.26227)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains13" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-1.9999162, 0, 0.018325886, 0, 2, 0, -0.018325886, 0, -1.9999162, -152.6999, 15.188599, 667.29816)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains14" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-1.9999162, 0, 0.018325886, 0, 2, 0, -0.018325886, 0, -1.9999162, -99.68039, 21.822098, 633.5577)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains15" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-0.04086432, 0, 0.9991647, 0, 1, 0, -0.9991647, 0, -0.04086432, 186.63304, 15.793785, 697.47656)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains16" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-0.08172864, 0, 1.9983294, 0, 2, 0, -1.9983294, 0, -0.08172864, 209.82294, 22.103653, 660.12787)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains17" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-0.08172857, 0, 1.9983296, 0, 2, 0, -1.9983296, 0, -0.08172857, 107.06361, 37.038376, 630.9971)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Mountains18" type="MeshInstance3D" parent="Level/Landing/Mountains"]
+transform = Transform3D(-0.04086432, 0, 0.9991647, 0, 1, 0, -0.9991647, 0, -0.04086432, 246.15105, 10.57238, 727.6835)
+mesh = SubResource("CylinderMesh_x0acx")
+skeleton = NodePath("../../../Environment")
+surface_material_override/0 = SubResource("StandardMaterial3D_41uok")
+
+[node name="Cliffs" type="Node3D" parent="Level/Landing"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -566.4709)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Level/Landing/Cliffs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.63318, 2.1214676, 581)
+mesh = SubResource("BoxMesh_0wntk")
+surface_material_override/0 = SubResource("StandardMaterial3D_tpxwd")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Level/Landing/Cliffs"]
+transform = Transform3D(0.9999035, 0, 0.013892375, 0, 1, 0, -0.013892375, 0, 0.9999035, -52.55421, 3.1380882, 581)
+mesh = SubResource("BoxMesh_0wntk")
+surface_material_override/0 = SubResource("StandardMaterial3D_sodqj")
+
+[node name="City" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 947.50836)
+material_override = SubResource("StandardMaterial3D_1cmee")
+mesh = SubResource("PlaneMesh_htyvx")
+
+[node name="Rocks" type="Node3D" parent="Level/City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.473549, 0, -37.413208)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Level/City/Rocks"]
+transform = Transform3D(0.95414066, 0.299357, 0, -0.299357, 0.95414066, 0, 0, 0, 1, 21.97439, -3.718773, -225.11694)
+mesh = SubResource("BoxMesh_htyvx")
+skeleton = NodePath("../../Buildings/MeshInstance3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_cj0o4")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Level/City/Rocks"]
+transform = Transform3D(-0.38680533, -0.121358365, 1.4441794, -0.44903567, 1.431212, 1.1920929e-07, -1.3779509, -0.43232524, -0.40539634, 12.262257, -3.718769, -227.3421)
+mesh = SubResource("BoxMesh_htyvx")
+skeleton = NodePath("../../Buildings/MeshInstance3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_cj0o4")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Level/City/Rocks"]
+transform = Transform3D(-0.90584874, -0.28420568, 0.31410834, -0.29935688, 0.95414066, 9.685755e-08, -0.2997038, -0.094030544, -0.9493871, 5.645706, -3.7283516, -222.69641)
+mesh = SubResource("BoxMesh_htyvx")
+skeleton = NodePath("../../Buildings/MeshInstance3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_cj0o4")
+
+[node name="Buildings" type="Node3D" parent="Level/City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -37.413208)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(0.9541412, 0.29935724, 0, -0.29935724, 0.9541412, 0, 0, 0, 1, 1.0059032, -3.5835, -220.74084)
+mesh = SubResource("CylinderMesh_htyvx")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(0.91619354, -0.14602888, 0.37318206, 0.15739973, 0.98753494, 0, -0.36853036, 0.058738764, 0.9277581, -32.757637, -40.351627, -175.77026)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.0210648, -26.972736, -165.02167)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.513901, -26.972736, -190.1123)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.513901, -26.972736, -127.1944)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.513901, -26.972736, -49.341736)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3034744, -31.039272, -85.53729)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.303703, -26.972736, 104.168396)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.093277, -31.039272, 67.97284)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3034744, -31.039272, -12.545654)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.129803, -31.039272, 27.54718)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="Level/City/Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.673943, -31.039272, 41.102417)
+mesh = SubResource("CylinderMesh_tpxwd")
+surface_material_override/0 = SubResource("StandardMaterial3D_htyvx")
+
+[node name="Roads" type="Node3D" parent="Level/City"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.385017, 0, -37.413208)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Level/City/Roads"]
+transform = Transform3D(0.99860567, 0, 0.052789114, 0, 1, 0, -0.052789114, 0, 0.99860567, -51.834938, -1.7781982, -82.822266)
+mesh = SubResource("BoxMesh_i658a")
+surface_material_override/0 = SubResource("StandardMaterial3D_ciinm")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Level/City/Roads"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -68.11903, -1.7781982, 137.73395)
+mesh = SubResource("BoxMesh_i658a")
+surface_material_override/0 = SubResource("StandardMaterial3D_ciinm")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Level/City/Roads"]
+transform = Transform3D(0.76059866, 0, 0.6492224, -0.074124485, 0.9934607, 0.08684079, -0.6449769, -0.11417426, 0.7556249, -14.799927, 3.7866, 52.49286)
+mesh = SubResource("BoxMesh_cj0o4")
+surface_material_override/0 = SubResource("StandardMaterial3D_ciinm")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Level/City/Roads"]
+transform = Transform3D(0.6313664, 0, 0.7754847, 0, 1, 0, -0.77548474, 0, 0.63136625, -75.50273, -0.5981159, -196.2124)
+mesh = SubResource("BoxMesh_ciinm")
+surface_material_override/0 = SubResource("StandardMaterial3D_8td3h")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Level/City/Roads"]
+transform = Transform3D(0.008220434, 0, 0.99996626, 0, 1, 0, -0.9999664, 0, 0.008220375, -118.28649, -0.5981159, -211.3006)
+mesh = SubResource("BoxMesh_ciinm")
+surface_material_override/0 = SubResource("StandardMaterial3D_8td3h")
+
+[node name="Environment" type="Node3D" parent="Level"]
+
+[node name="Enemy" type="Node3D" parent="Level"]
+
+[node name="Path3D-Enemy5" type="Path3D" parent="Level/Enemy"]
+transform = Transform3D(0.38831994, 0, -0.9215248, 0, 1, 0, 0.9215248, 0, 0.38831994, 0, 0, 144.13426)
+curve = SubResource("Curve3D_4mhx3")
+script = ExtResource("5_4mhx3")
+model_scene = ExtResource("5_x0acx")
+spawn_count = 1
+follow_speed = 0.15
+
+[node name="Path3D-Enemy6" type="Path3D" parent="Level/Enemy"]
+transform = Transform3D(0.38831994, 0, -0.9215248, 0, 1, 0, 0.9215248, 0, 0.38831994, 3, 0, 223.27228)
+curve = SubResource("Curve3D_4mhx3")
+script = ExtResource("5_4mhx3")
+model_scene = ExtResource("5_x0acx")
+spawn_count = 1
+follow_speed = 0.15
+
+[node name="Path3D-Enemy7" type="Path3D" parent="Level/Enemy"]
+transform = Transform3D(0.38831994, 0, -0.9215248, 0, 1, 0, 0.9215248, 0, 0.38831994, -3, 0, 223.27228)
+curve = SubResource("Curve3D_4mhx3")
+script = ExtResource("5_4mhx3")
+model_scene = ExtResource("5_x0acx")
+spawn_count = 1
+follow_speed = 0.15
+
+[node name="Path3D-Enemy8" type="Path3D" parent="Level/Enemy"]
+transform = Transform3D(-0.22899657, 0, -0.9734273, 0, 1, 0, 0.9734273, 0, -0.22899657, -58.671085, 11.066242, 294.5606)
+curve = SubResource("Curve3D_htyvx")
+script = ExtResource("5_4mhx3")
+model_scene = ExtResource("5_x0acx")
+spawn_count = 1
+follow_speed = 0.1
+
+[node name="Path3D-Enemy10" type="Path3D" parent="Level/Enemy"]
+transform = Transform3D(-0.22899657, 0, -0.9734273, 0, 1, 0, 0.9734273, 0, -0.22899657, -58.671085, 1.7787781, 294.5606)
+curve = SubResource("Curve3D_cj0o4")
+script = ExtResource("5_4mhx3")
+model_scene = ExtResource("5_x0acx")
+spawn_count = 1
+follow_speed = 0.1
+
+[node name="Path3D-Enemy9" type="Path3D" parent="Level/Enemy"]
+transform = Transform3D(-0.22899657, 0, -0.9734273, 0, 1, 0, 0.9734273, 0, -0.22899657, -62.646374, 6.6424294, 294.5606)
+curve = SubResource("Curve3D_i658a")
+script = ExtResource("5_4mhx3")
+model_scene = ExtResource("5_x0acx")
+spawn_count = 1
+follow_speed = 0.1
+
+[node name="Saucer" parent="Level/Enemy" instance=ExtResource("8_tpxwd")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 2.21138, 15.431257, 670.1487)
+spawn_mode = 2
+
+[node name="Saucer4" parent="Level/Enemy" instance=ExtResource("8_tpxwd")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 1.3672523, 4.721178, 670.1487)
+spawn_mode = 2
+
+[node name="Saucer3" parent="Level/Enemy" instance=ExtResource("8_tpxwd")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 6.9169235, 9.661631, 670.1487)
+
+[node name="Saucer2" parent="Level/Enemy" instance=ExtResource("8_tpxwd")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, -4.1469955, 9.516884, 671.0453)
+
+[node name="Tank" parent="Level/Enemy" instance=ExtResource("7_0wntk")]
+transform = Transform3D(-0.01995833, 0, -0.0012902992, 0, 0.019999998, 0, 0.0012902992, 0, -0.01995833, -21.646904, -4.5, 761.63324)
+
+[node name="Tank2" parent="Level/Enemy" instance=ExtResource("7_0wntk")]
+transform = Transform3D(-0.01995833, 0, -0.0012902992, 0, 0.019999998, 0, 0.0012902992, 0, -0.01995833, -21.45047, -4.5, 764.67163)
+
+[node name="Theme" type="AudioStreamPlayer" parent="Level"]
+stream = ExtResource("19_htyvx")
+bus = &"Music"

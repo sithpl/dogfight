@@ -2,7 +2,8 @@
 class_name EnemyLaser extends Area3D
 
 # --- Gameplay settings ---
-@export var enemy_laser_speed: float = 100.0 # Default speed of laser projectile
+@export var enemy_laser_speed  : float = 100.0 ## Default speed of laser projectile
+@export var enemy_laser_damage : float = 10.0  ## Default damage of laser projectile
 
 # Called once when scene starts
 func _ready():
@@ -24,8 +25,8 @@ func _process(delta: float):
 # Despawns (free) laser when it hits another target with collision
 func _on_area_entered(area):
 	#print("EnemyLaser.gd -> _on_area_entered() called!")
-	if area.is_in_group("Enemy"):
-		return
-	if not area.is_in_group("Player"):
+	if area.is_in_group("Player"):
 		queue_free()
-		print("EnemyLaser hit Player!")
+		#print("EnemyLaser hit Player!")
+	else:
+		return

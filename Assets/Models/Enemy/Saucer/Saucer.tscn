@@ -175,6 +175,7 @@ height = 0.35
 radius = 0.43408203
 
 [node name="Saucer" type="Area3D"]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0, 0, 0)
 script = ExtResource("1_1jvft")
 enemy_laser_scene = ExtResource("2_vq2ln")
 

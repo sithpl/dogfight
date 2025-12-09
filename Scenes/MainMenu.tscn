@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3 uid="uid://bjh1ua15fd23m"]
 
 [ext_resource type="Script" uid="uid://bgu2wdlrww2dm" path="res://Scripts/MainMenu.gd" id="1_853f1"]
-[ext_resource type="Texture2D" uid="uid://73wqdwyrspxv" path="res://Assets/Textures/blue-stars-black-space.png" id="2_xim88"]
+[ext_resource type="Texture2D" uid="uid://73wqdwyrspxv" path="res://Assets/Textures/Training/blue-stars-black-space.png" id="2_xim88"]
 [ext_resource type="AudioStream" uid="uid://dk7jw54bgtiru" path="res://Assets/Voice/sf64-rob64-goodluck.wav" id="4_df05h"]
 [ext_resource type="AudioStream" uid="uid://73ny83ygb146" path="res://Assets/SFX/sf64-boost-sfx.wav" id="6_loo7a"]
 [ext_resource type="AudioStream" uid="uid://b5g67cm2hrfvy" path="res://Assets/Music/sf64-mainmenu-remix.wav" id="6_xim88"]

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5flt1xajmc67"
-path.s3tc="res://.godot/imported/space-wallpaper.jpg-4d732bcdb529f976cc6f9074e47ae556.s3tc.ctex"
+uid="uid://dbgase5wpf6x"
+path.s3tc="res://.godot/imported/cyan.bmp-50b7c56e990c4563b3ebe7e24f6677a2.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://Assets/Textures/space-wallpaper.jpg"
-dest_files=["res://.godot/imported/space-wallpaper.jpg-4d732bcdb529f976cc6f9074e47ae556.s3tc.ctex"]
+source_file="res://Assets/Models/Enemy/Bandit/cyan.bmp"
+dest_files=["res://.godot/imported/cyan.bmp-50b7c56e990c4563b3ebe7e24f6677a2.s3tc.ctex"]
 
 [params]
 

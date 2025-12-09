@@ -21,7 +21,6 @@ buses/default_bus_layout="uid://berlt741ym7s7"
 
 [display]
 
-window/size/mode=2
 window/size/window_width_override=640
 window/size/window_height_override=480
 window/stretch/mode="viewport"

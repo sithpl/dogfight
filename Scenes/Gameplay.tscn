@@ -38,6 +38,8 @@ height = 0.01
 
 [node name="Gameplay" type="Node3D"]
 script = ExtResource("1_7wr7o")
+area_bounds_x = 32.0
+lock_z_to_plane = false
 
 [node name="Bounds" type="Camera3D" parent="."]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -10)
@@ -46,6 +48,7 @@ fov = 90.0
 [node name="PlayerCam" type="Camera3D" parent="Bounds"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
 current = true
+far = 155.0
 script = ExtResource("2_5klrq")
 deadzone_size = Vector2(5, 1.5)
 
@@ -59,10 +62,10 @@ charged_laser_scene = ExtResource("5_bk2no")
 lock_view_cone_deg = 45.0
 
 [node name="PlayerMesh" parent="Player" instance=ExtResource("6_qaqk3")]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
 
 [node name="BoostParticles" type="CPUParticles3D" parent="Player/PlayerMesh"]
-transform = Transform3D(3, -4.4078377e-09, -2.7079474e-07, -2.7079466e-07, -0.09763293, -2.9984112, -4.4078945e-09, 2.9984112, -0.09763293, 0.011761021, -0.03149135, 0.03036642)
+transform = Transform3D(3.0000007, -4.4078092e-09, -2.7079474e-07, -2.7079466e-07, -0.09763293, -2.998412, -4.407923e-09, 2.998412, -0.09763293, -0.006841354, -0.03149135, 0.03036654)
 material_override = SubResource("StandardMaterial3D_2w5on")
 cast_shadow = 0
 lifetime = 0.5
@@ -72,7 +75,7 @@ particle_flag_align_y = true
 gravity = Vector3(0, 0, -1)
 
 [node name="BoostLight" type="OmniLight3D" parent="Player/PlayerMesh"]
-transform = Transform3D(0.33333334, 2.912551e-08, -3.0089307e-08, -2.9125488e-08, -0.010848212, -0.33315676, -3.008932e-08, 0.33315676, -0.010848212, 0.011761021, -0.03149135, 0.027925253)
+transform = Transform3D(0.2857143, 2.496472e-08, -2.5790834e-08, -2.4964702e-08, -0.00929847, -0.28556296, -2.5790847e-08, 0.28556296, -0.00929847, -0.0068413536, -0.03149135, 0.027925253)
 light_energy = 0.1
 light_indirect_energy = 0.0
 light_size = 2.765
@@ -84,9 +87,9 @@ transform = Transform3D(-5.2453668e-08, -1.2, 0, 1.2, -5.2453668e-08, 0, 0, 0, 1
 shape = SubResource("CapsuleShape3D_50glp")
 debug_fill = false
 
-[node name="DamageArea" type="Area3D" parent="Player"]
+[node name="Hurtbox" type="Area3D" parent="Player"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player/DamageArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player/Hurtbox"]
 transform = Transform3D(-5.2453668e-08, -1.2, 0, 1.2, -5.2453668e-08, 0, 0, 0, 1.2, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_50glp")
 debug_fill = false
@@ -135,7 +138,9 @@ bus = &"Effects"
 
 [node name="Center" type="MeshInstance3D" parent="."]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
-transparency = 1.0
+visible = false
 cast_shadow = 0
 mesh = SubResource("SphereMesh_50glp")
 skeleton = NodePath("../Player")
+
+[connection signal="area_entered" from="Player/Hurtbox" to="Player" method="_on_hurtbox_area_entered"]

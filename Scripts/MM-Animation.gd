@@ -2,8 +2,8 @@
 extends Node3D
 
 # --- Gameplay settings ---
-@export var amplitude_deg : float = 30.0
-@export var speed         : float = 0.3
+@export var amplitude_deg : float = 30.0 ## Maximum degrees the model tilts side-to-side
+@export var speed         : float = 0.3  ## Speed at which the model tilts (secs)
 
 # --- Game state variables ---
 var time          : float = 0.0

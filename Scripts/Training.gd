@@ -2,14 +2,14 @@
 class_name Training extends Node3D
 
 # --- Gameplay settings ---
-@export var base_scroll_speed : float = 15.0  # How fast the world scrolls by default (units/sec)
-@export var boost_mult        : float = 1.5   # Multiplies base_scroll_speed when boosting
-@export var brake_mult        : float = 0.5   # Multiplies base_scroll_speed when braking
-@export var spawn_interval    : float = 2.0   # Seconds between spawns of targets
-@export var default_fov       : float = 90.0  # Camera FOV by default
-@export var boost_fov         : float = 115.0 # Camera FOV when boosting (speed effect)
-@export var brake_fov         : float = 75.0  # Camera FOV when braking (tunnel vision effect)
-@export var fov_lerp_speed    : float = 3.0   # How quickly the camera FOV transitions
+@export var base_scroll_speed : float = 15.0  ## How fast the world scrolls by default (units/sec)
+@export var boost_mult        : float = 1.5   ## Multiplies base_scroll_speed when boosting
+@export var brake_mult        : float = 0.5   ## Multiplies base_scroll_speed when braking
+@export var spawn_interval    : float = 2.0   ## Seconds between spawns of targets
+@export var default_fov       : float = 90.0  ## Camera FOV by default
+@export var boost_fov         : float = 115.0 ## Camera FOV when boosting (speed effect)
+@export var brake_fov         : float = 75.0  ## Camera FOV when braking (tunnel vision effect)
+@export var fov_lerp_speed    : float = 3.0   ## How quickly the camera FOV transitions
 
 # --- Node settings ---
 @onready var fade_effect : ColorRect         = $FadeEffect                # ColorRect used for fade effect (set at Z Index 1)
@@ -39,11 +39,11 @@ var is_mission_finished : bool = false # Tracks current game status (completed =
 var score_goal_1        : bool = false # Tracks score for voice line prompt
 
 # --- BoostMeter tuning ---
-@export var max_meter          : float = 100.0 # Maximum available units to consume for boost/brake
-@export var recharge_rate      : float = 33.0  # Unit rate (per sec) at which BoostMeter recharges
-@export var cooldown_after_use : float = 0.5   # Time required before BoostMeter can be used again (secs)
-@export var boost_drain_rate   : float = 60.0  # Units consumed (per sec) while boosting
-@export var brake_drain_rate   : float = 60.0  # Units consumed (per sec)while braking
+@export var max_meter          : float = 100.0 ## Maximum available units to consume for boost/brake
+@export var recharge_rate      : float = 33.0  ## Unit rate (per sec) at which BoostMeter recharges
+@export var cooldown_after_use : float = 0.5   ## Time required before BoostMeter can be used again (secs)
+@export var boost_drain_rate   : float = 60.0  ## Units consumed (per sec) while boosting
+@export var brake_drain_rate   : float = 60.0  ## Units consumed (per sec)while braking
 
 # --- BoostMeter state ---
 var meter              : float = 0.0 # Initialize BoostMeter amount
@@ -224,7 +224,7 @@ func _process(delta):
 			if $Gameplay/Player.lock_target != null:
 				$Gameplay/Player._clear_lock()
 			#print("Main.gd -> target.queue_free() called")
-			# Subtract 1 hit from total score
+			# Subtract 1 hit from total scored
 			# score -= 1
 			#print("Hits: -1")
 			# Call set_score in HUD.gd
@@ -333,12 +333,20 @@ func _update_hud_meter():
 				pb.max_value = max_meter
 				pb.value = meter
 				#pb.modulate.a = 0.7 if cooldown_remaining > 0.0 else 1.0
+		if hud.has_node("DamMeterPanel/DamMeter"):
+			var pb = hud.get_node("DamMeterPanel/DamMeter") as ProgressBar
+			if pb:
+				pb.min_value = 0.0
+				pb.max_value = $Gameplay/Player.max_vehicle_hp
+				pb.value = $Gameplay/Player.current_vehicle_hp
+				#pb.modulate.a = 0.7 if cooldown_remaining > 0.0 else 1.0
 
 # Find transmission and play it
 func _incoming_transmission(message: int):
 	if message == 1:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-rob-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-rob-talking.png")
 		trans.char_name = "ROB64"
 		trans.char_text = "WELCOME TO TRAINING MODE."
 		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-welcome.wav")
@@ -346,7 +354,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 2:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-rob-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-rob-talking.png")
 		trans.char_name = "ROB64"
 		trans.char_text = "LET'S PRACTICE THE BASICS."
 		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-basics.wav")
@@ -354,7 +363,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 3:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-slippy-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-slippy-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-slippy-talking.png")
 		trans.char_name = "SLIPPY"
 		trans.char_text = "Hold A to charge your laser!"
 		trans.char_voice = preload("res://Assets/Voice/sf64-slip-chargelaser.wav")
@@ -362,7 +372,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 4:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-peppy-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-peppy-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-peppy-talking.png")
 		trans.char_name = "PEPPY"
 		trans.char_text = "To barrel roll, \npress Z (LB/Q) or R (RB/E) twice!"
 		trans.char_voice = preload("res://Assets/Voice/sf64-pep-roll2.wav")
@@ -370,7 +381,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 5:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-katt-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-katt-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-katt-talking.png")
 		trans.char_name = "KATT"
 		trans.char_text = "Beautiful! I could kiss you for that!"
 		trans.char_voice = preload("res://Assets/Voice/sf64-katt-kiss.wav")
@@ -378,7 +390,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 6:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-falco-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-falco-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-falco-talking.png")
 		trans.char_name = "FALCO"
 		trans.char_text = "I'll pass..."
 		trans.char_voice = preload("res://Assets/Voice/sf64-fal-pass.wav")
@@ -386,7 +399,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 7:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-peppy-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-peppy-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-peppy-talking.png")
 		trans.char_name = "PEPPY"
 		trans.char_text = "Your skills have improved, Fox!"
 		trans.char_voice = preload("res://Assets/Voice/sf64-pep-improved.wav")
@@ -394,7 +408,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 8:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-rob-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-rob-talking.png")
 		trans.char_name = "ROB64"
 		trans.char_text = "GOOD JOB."
 		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-goodjob.wav")
@@ -402,7 +417,8 @@ func _incoming_transmission(message: int):
 		hud._play_transmission(trans)
 	if message == 9:
 		var trans = Transmission.new()
-		trans.char_portrait = preload("res://Assets/Portrait/sf0-rob64-portrait.png")
+		trans.char_portrait = preload("res://Assets/Portrait/sf64-rob-portrait.png")
+		trans.char_talking = preload("res://Assets/Portrait/sf64-rob-talking.png")
 		trans.char_name = "ROB64"
 		trans.char_text = "THIS IS ROB64. KEEP UP THE GOOD WORK."
 		trans.char_voice = preload("res://Assets/Voice/sf64-rob64-goodwork.wav")

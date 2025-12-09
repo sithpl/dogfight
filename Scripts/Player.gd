@@ -2,20 +2,29 @@
 class_name Player extends Node3D
 
 # --- Gameplay settings ---
-@export var brake_mult           : float = 0.5                # Speed multiplier when braking
-@export var rotation_smoothness  : float = 8.0                # How smoothly the ship rotates/tilts (higher = snappier)
-@export var max_bank_angle       : float = 45.0               # Maximum tilt/roll (degrees) under normal movement
-@export var max_pitch_angle      : float = 45.0               # Maximum up/down tilt (degrees)
-@export var hard_bank_angle      : float = 90.0               # Angle (degrees) to roll when hard banking (Q/E or triggers)
-@export var hard_bank_smoothness : float = 10.0               # How quickly the ship snaps into/out of hard bank
-@export var max_yaw_angle        : float = 30.0               # Maximum left/right tilt (degrees)
-@export var hard_yaw_angle       : float = 60.0               # Sharper turn angle when hard banking
-@export var follow_speed         : float = 8.0                # How snappy Player follows Center
-@export var follow_offset        : Vector3 = Vector3(0, 0, 5) # How far back PlayerMesh stays
-@export var reticle_x_max        : float = 16                 # Max reticle offset X (left/right)
-@export var reticle_y_max        : float = 9                  # Max reticle offset Y (up/down)
-@export var reticle_sensitivity  : float = 1.0                # How fast the reticle snaps across the screen when aiming
-@export var laser_scene          : PackedScene                # Scene for the Laser shot (so it can be externally edited)
+@export var brake_mult           : float = 0.5                ## Speed multiplier when braking
+@export var rotation_smoothness  : float = 8.0                ## How smoothly the ship rotates/tilts (higher = snappier)
+@export var max_bank_angle       : float = 45.0               ## Maximum tilt/roll (degrees) under normal movement
+@export var max_pitch_angle      : float = 45.0               ## Maximum up/down tilt (degrees)
+@export var hard_bank_angle      : float = 90.0               ## Angle (degrees) to roll when hard banking (Q/E or triggers)
+@export var hard_bank_smoothness : float = 10.0               ## How quickly the ship snaps into/out of hard bank
+@export var max_yaw_angle        : float = 30.0               ## Maximum left/right tilt (degrees)
+@export var hard_yaw_angle       : float = 60.0               ## Sharper turn angle when hard banking
+@export var follow_speed         : float = 8.0                ## How snappy Player follows Center
+@export var follow_offset        : Vector3 = Vector3(0, 0, 5) ## How far back PlayerMesh stays
+@export var reticle_x_max        : float = 16                 ## Max reticle offset X (left/right)
+@export var reticle_y_max        : float = 9                  ## Max reticle offset Y (up/down)
+@export var reticle_sensitivity  : float = 1.0                ## How fast the reticle snaps across the screen when aiming
+@export var laser_scene          : PackedScene                ## Scene for the Laser shot (so it can be externally edited)
+
+# --- Player vehicle damage ---
+@export var max_vehicle_hp       : float = 100.0
+@export var current_vehicle_hp   : float = 100.0
+@export var hit_invul_frames     : float = 2.0
+@export var invul_flash_hz       : float = 24.0    # flashes per second while invulnerable
+
+var invul_flash_timer : float = 0.0
+var original_mesh_visible : bool = true
 
 # --- Node settings ---
 @onready var mesh            : Node3D              = $PlayerMesh                # Reference to the Player's visible mesh Node3D
@@ -32,6 +41,7 @@ class_name Player extends Node3D
 @onready var boost_light     : OmniLight3D         = $PlayerMesh/BoostLight     # Boost light node
 
 # --- Game state variables ---
+var is_training        : bool    = false
 var is_boosting        : bool    = false        # True if currently boosting
 var was_boosting       : bool    = false        # True if was boosting
 var is_braking         : bool    = false        # True if currently braking
@@ -39,18 +49,19 @@ var was_braking        : bool    = false        # True if was boosting
 var prev_position      : Vector3 = Vector3.ZERO # Used for velocity if needed
 var displayed_rotation : Vector3 = Vector3.ZERO # Smooth rotation for PlayerMesh
 var reticle_pos        : Vector2 = Vector2.ZERO # Used to track reticle position
+var hit_invul_timer    : float = 0.0
 
 # --- Barrel Roll logic ---
 
 # Barrel roll state
-@export var barrel_duration: float = 0.3        # How long barrel roll lasts (seconds)
+@export var barrel_duration: float = 0.3        ## How long barrel roll lasts (seconds)
 
 var is_doing_barrel_roll : bool = false # True if currently spinning (barrel roll)
 var barrel_direction     : int  = 0     # +1 (right) or -1 (left), or 0 if not rolling
 var barrel_elapsed       : float = 0.0  # How long this roll has run so far
 
 # Barrel roll cooldown
-@export var barrel_cooldown: float = 0.01       # How long player must wait after prevous barrel roll (seconds)
+@export var barrel_cooldown: float = 0.01       ## How long player must wait after prevous barrel roll (seconds)
 
 var barrel_cooldown_timer: float = 0.0          # If >0, rolling is locked out
 
@@ -62,15 +73,15 @@ var right_tap_timer  : float  = 0.0  # Used to measure right double taps
 var right_tap_count  : int    = 0    # How many right taps so far
 
 # --- Charged Shot logic ---
-@export var charge_time_max      : float = 1.0   # Time to reach full charge (secs)
-@export var charge_min_threshold : float = 0.5   # Minimum time to trigger "charged" effect
-@export var reticle_pulse_speed  : float = 10.0  # How fast $Reticle2 pulses when fully charged
-@export var reticle_pulse_scale  : float = 0.95  # Max extra scale applied during "charged" effect
-@export var auto_target_range    : float = 200.0 # Search radius for nearby targets
-@export var charged_laser_scene  : PackedScene   # Scene for the charged laser shot (so it can be externally edited)
+@export var charge_time_max      : float = 1.0   ## Time to reach full charge (secs)
+@export var charge_min_threshold : float = 0.5   ## Minimum time to trigger "charged" effect
+@export var reticle_pulse_speed  : float = 10.0  ## How fast $Reticle2 pulses when fully charged
+@export var reticle_pulse_scale  : float = 0.95  ## Max extra scale applied during "charged" effect
+@export var auto_target_range    : float = 200.0 ## Search radius for nearby targets
+@export var charged_laser_scene  : PackedScene   ## Scene for the charged laser shot (so it can be externally edited)
 
-var is_charging                : bool    = false                 # Is the player currently holding charge?
-var charge_timer               : float   = 0.0                   # Total charge time while holding
+var is_charging                : bool    = false                # Is the player currently holding charge?
+var charge_timer               : float   = 0.0                  # Total charge time while holding
 var reticle1_default_modulate : Color   = Color("ffffffff")  # Cached default color for reticle1 to restore after charging
 var reticle2_default_modulate : Color   = Color("ffffffff")  # Cached default color for reticle2 to restore after charging
 var reticles_charged_state    : bool    = false                 # True when full charged visual state reached
@@ -78,13 +89,13 @@ var reticle2_base_scale       : Vector3 = Vector3.ONE           # Saved base sca
 var reticle_pulse_timer       : float   = 0.0                   # Timer used to drive reticle pulse animation
 
 # --- Lock On logic ---
-@export var lock_reticle_scale      : float = 0.25                 # Tuning for lock reticle size
-@export var lock_view_distance      : float = 150.0                # How far player can "see" to lock (scope distance)
-@export var lock_view_cone_deg      : float = 60.0                 # Cone half-angle in degrees (smaller = tighter scope)
-@export var lock_min_distance       : float = 8.0                  # Don't lock targets closer than this to player
-@export var lock_require_los        : bool  = false                # Require LOS to target
-@export var hover_reticle_scale     : float = 0.9                  # Hover reticle scale for preview target
-@export var hover_reticle_modulate  : Color = Color("ffffff00")  # Hover reticle tint color
+@export var lock_reticle_scale      : float = 0.45                 ## Tuning for lock reticle size
+@export var lock_view_distance      : float = 150.0                ## How far player can "see" to lock (scope distance)
+@export var lock_view_cone_deg      : float = 60.0                 ## Cone half-angle in degrees (smaller = tighter scope)
+@export var lock_min_distance       : float = 8.0                  ## Don't lock targets closer than this to player
+@export var lock_require_los        : bool  = false                ## Require LOS to target
+@export var hover_reticle_scale     : float = 0.9                  ## Hover reticle scale for preview target
+@export var hover_reticle_modulate  : Color = Color("ffffff00")  ## Hover reticle tint color
 
 var lock_target        : Node     = null       # Node that player locked on to (set when full-charged)
 var lock_reticle       : Sprite3D = null       # runtime-created red reticle that sits on top of the locked target
@@ -97,6 +108,8 @@ func _ready():
 	# Initial position for velocity
 	prev_position = position
 
+	original_mesh_visible = mesh.visible
+
 	# Save reticle default colors to restore them after "charge" effect
 	if reticle2:
 		reticle2_base_scale = reticle2.scale
@@ -108,6 +121,25 @@ func _ready():
 func _process(delta: float):
 	# delta = time since last frame (in seconds)
 
+	# Decrease invulnerability timer if active
+	if hit_invul_timer > 0.0:
+		# count down the invulnerability timer
+		hit_invul_timer = max(0.0, hit_invul_timer - delta)
+
+		# advance the flash timer (keeps increasing while invulnerable)
+		invul_flash_timer += delta
+
+		# compute a simple on/off blink using a phase; true = visible
+		var phase = (invul_flash_timer * invul_flash_hz) - floor(invul_flash_timer * invul_flash_hz)
+		# make visible for the first half of each cycle, invisible the second half
+		if mesh:
+			mesh.visible = (phase < 0.5)
+	else:
+		# restore original visibility once invulnerability ends
+		if mesh and mesh.visible != original_mesh_visible:
+			mesh.visible = original_mesh_visible
+		invul_flash_timer = 0.0
+
 	# Animate particles based on boost/brake
 	if is_boosting:
 		boost_light.light_energy = 8.0
@@ -118,13 +150,13 @@ func _process(delta: float):
 		boost_light.light_energy = 0.2
 
 	# --- FOLLOW CENTER NODE LOGIC ---
-	if center:
-		var offset = center.global_transform.basis.x * follow_offset.x \
-				   + center.global_transform.basis.y * follow_offset.y \
-				   + center.global_transform.basis.z * follow_offset.z
-		var target_pos = center.global_transform.origin + offset
-		global_transform.origin = global_transform.origin.lerp(target_pos, follow_speed * delta)
-		global_transform.basis = center.global_transform.basis
+	#if center:
+		#var offset = center.global_transform.basis.x * follow_offset.x \
+				   #+ center.global_transform.basis.y * follow_offset.y \
+				   #+ center.global_transform.basis.z * follow_offset.z
+		#var target_pos = center.global_transform.origin + offset
+		#global_transform.origin = global_transform.origin.lerp(target_pos, follow_speed * delta)
+		#global_transform.basis = center.global_transform.basis
 
 	# Handle keyboard/controller input (applies on top of reticle follower)
 	# ONLY used for animating mesh (bank/pitch), NOT for moving Player node
@@ -378,6 +410,22 @@ func _process(delta: float):
 	else:
 		mesh.rotation_degrees = displayed_rotation
 
+func _physics_process(delta: float):
+	# follow logic (physics-step)
+	if is_instance_valid(center):
+		var forward = -center.global_transform.basis.z.normalized()
+		var offset = center.global_transform.basis.x * follow_offset.x \
+				   + center.global_transform.basis.y * follow_offset.y \
+				   + (-forward) * follow_offset.z
+		var target_pos = center.global_transform.origin + offset
+
+		# Lerp toward target; clamp factor so it's stable
+		var t = clamp(follow_speed * delta, 0.0, 1.0)
+		global_transform.origin = global_transform.origin.lerp(target_pos, t)
+
+		# Keep orientation matched to center (optional)
+		global_transform.basis = center.global_transform.basis
+
 # Returns brake multiplier depending on braking state
 func _get_brake_multiplier():
 	#print("Player.gd -> _set_reticles_charging() called!")
@@ -492,7 +540,12 @@ func _fire_charged_laser():
 func _clear_lock():
 	#print("Player.gd -> _clear_lock() called!")
 	lock_target = null 
-	if lock_reticle: 
+	if lock_reticle:
+		#print("Lock reticle local scale: ", lock_reticle.scale)
+		#print("Lock reticle global scale: ", lock_reticle.global_transform.basis.get_scale())
+		#if lock_reticle.get_parent():
+			#print("Reticle parent name: ", lock_reticle.get_parent().name)
+			#print("Parent global scale: ", lock_reticle.get_parent().global_transform.basis.get_scale())
 		lock_reticle.queue_free() 
 		lock_reticle = null 
 		reticle_pulse_timer = 0.0
@@ -525,9 +578,18 @@ func _create_lock_reticle():
 	# Make sure the reticle is visible and unshaded enough to be seen
 	lock_reticle.visible = true
 
+
 	# Parent to the lock target so it follows, but set its local transform to identity
-	lock_target.add_child(lock_reticle)
-	#_lock_reticle.transform = Transform3D(Basis(), Vector3.ZERO)
+	
+	# TODO Fix this BS
+	# OLD method works with Targets in Training Mode
+	if get_tree().current_scene.name == "Training":
+		lock_target.add_child(lock_reticle)
+		lock_reticle.transform = Transform3D(Basis(), Vector3.ZERO)
+	else:
+		# NEW method works with new enemies but not with Targets????
+		get_tree().current_scene.add_child(lock_reticle)
+		lock_reticle.global_transform.origin = lock_target.global_transform.origin
 
 	# Also force its world position immediately (in case parent origin is offset)
 	lock_reticle.global_transform.origin = lock_target.global_transform.origin
@@ -690,12 +752,29 @@ func _play_lockon_sfx():
 		lockon_sfx.play()
 
 # Player collision and damage logic
-func _on_damage_area_entered(area):
-	# Check if the colliding area is an enemy projectile
+func _on_hurtbox_area_entered(area):
+	# Called when an Area3D enters the player's hurtbox.
+	# Implement invulnerability frames: ignore damage while hit_invul_timer > 0.
 	if area.is_in_group("EnemyLaser"):
-		print("Player hit by enemy laser!")
-		# 1. Apply damage
-		# func take_damage to be added later
-		
-		# 2. Despawn the laser projectile (important!)
+		# If currently invulnerable, ignore the hit entirely (but optionally remove the projectile)
+		if hit_invul_timer > 0.0:
+			area.queue_free()
+			return
+
+		# Apply damage once and start invulnerability timer
+		_vehicle_take_damage()
+
+		# Start invul timer so overlapping lasers won't immediately re-damage
+		hit_invul_timer = hit_invul_frames
+		invul_flash_timer = 0.0
+		if mesh:
+			original_mesh_visible = mesh.visible
+
+		# Despawn the laser projectile
 		area.queue_free()
+
+func _vehicle_take_damage():
+	#print("Player.gd -> _vehicle_take_damage called!()")
+	current_vehicle_hp -= 10
+	$"../.."._update_hud_meter()
+	#print("Vehicle Health: ", current_vehicle_hp, " / ", max_vehicle_hp)
